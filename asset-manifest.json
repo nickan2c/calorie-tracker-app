@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/nickan2c/calorie-tracker-app/static/css/main.fe591c31.css",
-    "main.js": "/nickan2c/calorie-tracker-app/static/js/main.aeaa1979.js",
-    "index.html": "/nickan2c/calorie-tracker-app/index.html",
-    "main.fe591c31.css.map": "/nickan2c/calorie-tracker-app/static/css/main.fe591c31.css.map",
-    "main.aeaa1979.js.map": "/nickan2c/calorie-tracker-app/static/js/main.aeaa1979.js.map"
+    "main.css": "/calorie-tracker-app/static/css/main.fe591c31.css",
+    "main.js": "/calorie-tracker-app/static/js/main.4be78d89.js",
+    "index.html": "/calorie-tracker-app/index.html",
+    "main.fe591c31.css.map": "/calorie-tracker-app/static/css/main.fe591c31.css.map",
+    "main.4be78d89.js.map": "/calorie-tracker-app/static/js/main.4be78d89.js.map"
   },
   "entrypoints": [
     "static/css/main.fe591c31.css",
-    "static/js/main.aeaa1979.js"
+    "static/js/main.4be78d89.js"
   ]
 }
