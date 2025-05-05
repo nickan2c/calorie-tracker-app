@@ -1,17 +1,21 @@
 import React from 'react';
 
-const InputField = ({ label, name, type = 'text', value, onChange }) => (
-  <div className="form-group">
-    <label htmlFor={name}>{label}</label>
-    <input
-      id={name}
-      name={name}
-      type={type}
-      value={value}
-      onChange={onChange}
-      required
-    />
-  </div>
-);
+function InputField({ label, name, type, value, onChange, placeholder, required, hasError }) {
+  return (
+    <div className="input-field">
+      <label>{label}</label>
+      <input
+        name={name}
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        className={hasError ? 'input-error' : ''}
+      />
+    </div>
+  );
+}
+
 
 export default InputField;

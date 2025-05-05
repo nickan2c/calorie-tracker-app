@@ -1,32 +1,27 @@
-import React, { useState } from 'react';
-import { Confirm } from 'react-admin';
+import React from 'react';
+import { db } from "../firebaseConfig/firebaseConfig";
+import { doc, deleteDoc } from 'firebase/firestore';
 
-const EntriesTable = ({ entries, onEdit, onDelete, editingIndex }) => {
-  const [openConfirm, setOpenConfirm] = useState(false);
-  const [deleteIndex, setDeleteIndex] = useState(null);
+const EntriesTable = ({ entries, onEdit, editingIndex, refreshEntries }) => {
+  const handleDelete = async (entry) => {
+    const confirm = window.confirm(`Delete entry for ${entry.date}?`);
+    if (!confirm) return;
 
-  const handleDelete = (index) => {
-    setDeleteIndex(index);
-    setOpenConfirm(true);
-  };
-
-  const handleConfirmDelete = () => {
-    if (deleteIndex !== null) {
-      onDelete(deleteIndex);
+    try {
+      await deleteDoc(doc(db, "entries", entry.date));
+      refreshEntries();
+    } catch (error) {
+      console.error("Error deleting entry:", error);
     }
-    setOpenConfirm(false);
-    setDeleteIndex(null);
   };
 
-  const handleCancelDelete = () => {
-    setOpenConfirm(false);
-    setDeleteIndex(null);
-  };
+  // Sort by date descending
+  const sortedEntries = [...entries].sort((a, b) => new Date(b.date) - new Date(a.date));
 
   return (
     <div className="entries-section">
       <h2>Previous Entries</h2>
-      {entries.length === 0 ? (
+      {sortedEntries.length === 0 ? (
         <p className="no-entries">No entries yet. Add your first entry using the form above.</p>
       ) : (
         <div className="table-container">
@@ -34,26 +29,34 @@ const EntriesTable = ({ entries, onEdit, onDelete, editingIndex }) => {
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Weight</th>
+                <th>Weight (kg)</th>
                 <th>Calories</th>
-                <th>Protein</th>
+                <th>Protein (g)</th>
                 <th>Steps</th>
+                <th>Cardio (kcal)</th>
+                <th>Exercise 1</th>
+                <th>Exercise 2</th>
                 <th>Deficit</th>
+                <th>Notes</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {entries.map((entry, index) => (
-                <tr key={index} className={index === editingIndex ? 'editing' : ''}>
+              {sortedEntries.map((entry, index) => (
+                <tr key={entry.date} className={index === editingIndex ? 'editing' : ''}>
                   <td>{entry.date}</td>
                   <td>{entry.weight}</td>
                   <td>{entry.intake}</td>
                   <td>{entry.protein}</td>
                   <td>{entry.steps}</td>
+                  <td>{entry.cardio}</td>
+                  <td>{entry.exercise1}</td>
+                  <td>{entry.exercise2}</td>
                   <td>{entry.deficit}</td>
+                  <td>{entry.notes}</td>
                   <td className="action-buttons">
                     <button onClick={() => onEdit(index)} className="edit-button">Edit</button>
-                    <button onClick={() => handleDelete(index)} className="delete-button">Delete</button>
+                    <button onClick={() => handleDelete(entry)} className="delete-button">Delete</button>
                   </td>
                 </tr>
               ))}
@@ -61,13 +64,6 @@ const EntriesTable = ({ entries, onEdit, onDelete, editingIndex }) => {
           </table>
         </div>
       )}
-      <Confirm
-        isOpen={openConfirm}
-        title="Confirm Deletion"
-        content="Are you sure you want to delete this entry?"
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
-      />
     </div>
   );
 };

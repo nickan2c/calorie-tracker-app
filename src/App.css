@@ -235,6 +235,9 @@ body {
     gap: 8px;
     justify-content: flex-start;
   }
+  input:invalid, .input-error {
+    border: 2px solid red;
+  }
   
   /* Responsive layout for smaller screens */
   @media (max-width: 600px) {
