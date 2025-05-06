@@ -32,10 +32,7 @@ function EntryPage({ entries, setEntries, fetchEntries, tdee, goalIntake }) {
   const [editingIndex, setEditingIndex] = useState(-1);
   const [warning, setWarning] = useState('');
   const [confirmOverwrite, setConfirmOverwrite] = useState(false);
-  const [pendingForm, setPendingForm] = useState(null);
   const [formErrors, setFormErrors] = useState({});
-  const [prevSteps, setPrevSteps] = useState(0);  // Store the previous steps value
-  const [prevIntake, setPrevIntake] = useState(0); // Store the previous intake value
 
   // Find the most recent entry from the list
   const getMostRecentEntry = () => {
@@ -45,9 +42,8 @@ function EntryPage({ entries, setEntries, fetchEntries, tdee, goalIntake }) {
 
   const mostRecentEntry = getMostRecentEntry();
 
-  const calculateDeficit = ({ steps, cardio, intake }) => {
-    const stepsBurned = Number(steps || 0) * STEPS_BURN_RATE;
-    return Math.round((stepsBurned + Number(cardio || 0) - Number(intake || 0)) * 100) / 100;
+  const calculateDeficit = ({ steps, cardio, intake, tdee }) => {
+    return Math.round(intake - tdee - Number(cardio || 0));
   };
 
   const handleChange = (e) => {
@@ -57,54 +53,62 @@ function EntryPage({ entries, setEntries, fetchEntries, tdee, goalIntake }) {
     const newValue = name === "steps" || name === "intake" ? parseInt(value) : value;
     let updated = { ...form, [name]: newValue };
 
-    updated.deficit = calculateDeficit(updated);
+    updated.deficit = calculateDeficit({tdee, ...updated});
     setForm(updated);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Check if required fields are filled
+  
     const errors = {};
-    if (!form.intake) errors.intake = true;  // Mark as error if intake is empty
-    if (!form.protein) errors.protein = true;  // Mark as error if protein is empty
-
+    if (!form.intake) errors.intake = true;
+    if (!form.protein) errors.protein = true;
+  
     if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);  // Update errors state to highlight the fields
+      setFormErrors(errors);
       return;
     }
-
-    const final = { ...form, deficit: calculateDeficit(form) };
+  
+    const final = {
+      ...form,
+      intake: Number(form.intake),
+      protein: Number(form.protein),
+      steps: Number(form.steps),
+      cardio: Number(form.cardio),
+      deficit: calculateDeficit({ tdee, ...form }),
+    };
+  
     const docId = final.date;
-
     const entryExists = entries.some(entry => entry.date === docId);
-
-    if (entryExists && editingIndex === -1 && !confirmOverwrite) {
+  
+    if (!editingIndex >= 0 && entryExists && !confirmOverwrite) {
       setWarning(`Entry for ${docId} exists. Click again to overwrite.`);
       setConfirmOverwrite(true);
-      setPendingForm(final);
       return;
     }
-
+  
     try {
       await setDoc(doc(db, "entries", docId), final);
       await fetchEntries();
     } catch (error) {
-      console.error("Error saving:", error);
+      console.error("Error saving entry:", error);
     }
-
+  
     setForm(EMPTY_FORM);
     setEditingIndex(-1);
-    setConfirmOverwrite(false);
-    setPendingForm(null);
     setWarning('');
+    setConfirmOverwrite(false);
+    setFormErrors({});
   };
-
+  
   const handleEdit = (index) => {
-    setForm(entries[index]);
+    const entry = entries[index];
+    entry.deficit = calculateDeficit({ tdee, ...entry });
+    setForm(entry);
     setEditingIndex(index);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 200, behavior: 'smooth' });
   };
+  
 
   const cancelEdit = () => {
     setForm(EMPTY_FORM);

@@ -26,10 +26,8 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
-
+    "deploy": "firebase build"
   },
-  "homepage": "https://nickan2c.github.io/calorie-tracker-app",
   "eslintConfig": {
     "extends": [
       "react-app",

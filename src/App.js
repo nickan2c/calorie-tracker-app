@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { HashRouter as Router, Route, Routes, Link } from "react-router-dom";
-import { collection, getDocs, query } from "firebase/firestore";
+import { collection, getDocs, query, orderBy  } from "firebase/firestore";
 import { db } from "./firebaseConfig/firebaseConfig";
 import ChartsPage from "./ChartsPage";
 import SettingsPage from "./SettingsPage";
@@ -31,19 +31,10 @@ function App() {
 
   const fetchEntries = async () => {
     const entriesRef = collection(db, "entries");
-    const q = query(entriesRef); // Firestore stores dates as strings, so we'll sort in JS
-    const snapshot = await getDocs(q);
-    const data = snapshot.docs.map(doc => doc.data());
-
-    // Sort descending by parsed date
-    data.sort((a, b) => {
-      const parseDate = str => {
-        const [d, m, y] = str.split("/").map(Number);
-        return new Date(y, m - 1, d);
-      };
-      return parseDate(b.date) - parseDate(a.date);
-    });
-
+    const q = query(entriesRef, orderBy("date", "desc")); // or "asc" if you prefer
+  
+    const querySnapshot = await getDocs(q);
+    const data = querySnapshot.docs.map(doc => doc.data());
     setEntries(data);
   };
 

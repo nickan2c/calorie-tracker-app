@@ -10,8 +10,10 @@
 
 # production
 /build
-
+/static
 /src/firebase
+.firebase
+
 # misc
 .DS_Store
 .env.local

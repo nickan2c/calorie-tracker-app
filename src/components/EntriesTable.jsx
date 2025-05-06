@@ -42,25 +42,33 @@ const EntriesTable = ({ entries, onEdit, editingIndex, refreshEntries }) => {
               </tr>
             </thead>
             <tbody>
-              {sortedEntries.map((entry, index) => (
-                <tr key={entry.date} className={index === editingIndex ? 'editing' : ''}>
-                  <td>{entry.date}</td>
-                  <td>{entry.weight}</td>
-                  <td>{entry.intake}</td>
-                  <td>{entry.protein}</td>
-                  <td>{entry.steps}</td>
-                  <td>{entry.cardio}</td>
-                  <td>{entry.exercise1}</td>
-                  <td>{entry.exercise2}</td>
-                  <td>{entry.deficit}</td>
-                  <td>{entry.notes}</td>
-                  <td className="action-buttons">
+            {entries.map((entry, index) => {
+                const bgColor = entry.deficit > 0
+                ? '#ffe5e5' // light red
+                : entry.deficit < 0
+                ? '#e5ffe5' // light green
+                : 'transparent';
+
+                return (
+                <tr key={entry.date} style={{ backgroundColor: bgColor }}>
+                    <td>{entry.date}</td>
+                    <td>{entry.weight}</td>
+                    <td>{entry.intake}</td>
+                    <td>{entry.protein}</td>
+                    <td>{entry.steps}</td>
+                    <td>{entry.cardio}</td>
+                    <td>{entry.exercise1}</td>
+                    <td>{entry.exercise2}</td>
+                    <td>{entry.notes}</td>
+                    <td>{entry.deficit}</td>
+                    <td className="action-buttons">
                     <button onClick={() => onEdit(index)} className="edit-button">Edit</button>
                     <button onClick={() => handleDelete(entry)} className="delete-button">Delete</button>
-                  </td>
-                </tr>
-              ))}
+                  </td>                </tr>
+                );
+            })}
             </tbody>
+
           </table>
         </div>
       )}
