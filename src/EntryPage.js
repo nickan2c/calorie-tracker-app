@@ -27,7 +27,7 @@ const EMPTY_FORM = {
   deficit: 0,
 };
 
-function EntryPage({ entries, setEntries, fetchEntries, tdee, goalIntake }) {
+function EntryPage({ entries, fetchEntries, tdee, goalIntake }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingIndex, setEditingIndex] = useState(-1);
   const [warning, setWarning] = useState('');
@@ -60,21 +60,22 @@ function EntryPage({ entries, setEntries, fetchEntries, tdee, goalIntake }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    const errors = {};
-    if (!form.intake) errors.intake = true;
-    if (!form.protein) errors.protein = true;
+    // Check if all form values are empty (ignoring `date`)
+    const hasData = Object.entries(form).some(
+      ([key, value]) => key !== 'date' && value !== '' && value !== 0
+    );
   
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
+    if (!hasData) {
+      setWarning("Please fill in at least one field.");
       return;
     }
   
     const final = {
       ...form,
-      intake: Number(form.intake),
-      protein: Number(form.protein),
-      steps: Number(form.steps),
-      cardio: Number(form.cardio),
+      intake: Number(form.intake || 0),
+      protein: Number(form.protein || 0),
+      steps: Number(form.steps || 0),
+      cardio: Number(form.cardio || 0),
       deficit: calculateDeficit({ tdee, ...form }),
     };
   

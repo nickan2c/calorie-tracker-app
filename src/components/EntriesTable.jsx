@@ -59,16 +59,16 @@ const EntriesTable = ({ entries, onEdit, editingIndex, refreshEntries }) => {
                     <td>{entry.cardio}</td>
                     <td>{entry.exercise1}</td>
                     <td>{entry.exercise2}</td>
-                    <td>{entry.notes}</td>
                     <td>{entry.deficit}</td>
+                    <td>{entry.notes}</td>
                     <td className="action-buttons">
-                    <button onClick={() => onEdit(index)} className="edit-button">Edit</button>
-                    <button onClick={() => handleDelete(entry)} className="delete-button">Delete</button>
-                  </td>                </tr>
+                        <button onClick={() => onEdit(index)} className="edit-button">Edit</button>
+                        <button onClick={() => handleDelete(entry)} className="delete-button">Delete</button>
+                    </td>
+                </tr>
                 );
             })}
             </tbody>
-
           </table>
         </div>
       )}
