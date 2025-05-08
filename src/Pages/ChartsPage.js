@@ -5,11 +5,11 @@ import {
   subDays, addDays, startOfDay, endOfDay, isWithinInterval,
   subWeeks, addWeeks, subMonths, startOfMonth
 } from 'date-fns';
-import MetricChart from './components/MetricChart';
-import WeeklyDeficitProgress from './components/WeeklyDeficitProgress';
-import './style/ChartsPage.css';
+import MetricChart from '../components/MetricChart';
+import WeeklyDeficitProgress from '../components/WeeklyDeficitProgress';
+import '../style/ChartsPage.css';
 
-// Group daily entries into weekly averages
+// TODO fix buggy charts - not accurate I think. Check this.
 function groupEntriesByWeek(entries) {
   const weeklyMap = {};
 
@@ -129,10 +129,10 @@ function fillMissingDays(entries, startDate, endDate) {
   return result;
 }
 
-export default function ChartsPage({ entries }) {
+export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
   // State for chart data display
   const [viewType, setViewType] = useState('daily');
-  const [timeRange, setTimeRange] = useState('7days');
+  const [timeRange, setTimeRange] = useState(7);
   const [chartData, setChartData] = useState([]);
   
   // State for week navigation (only used for the Weekly Deficit Progress)
@@ -167,13 +167,12 @@ export default function ChartsPage({ entries }) {
 
   // Time range options for charts
   const timeRangeOptions = [
-    { value: '7days', label: 'Past 7 Days' },
-    { value: '14days', label: 'Past 14 Days' },
-    { value: '31days', label: 'Past 31 Days' },
-    { value: '2months', label: 'Past 2 Months' },
-    { value: '3months', label: 'Past 3 Months' },
-    { value: '6months', label: 'Past 6 Months' },
-    { value: '1year', label: 'Past 1 Year' }
+    { value: 7, label: 'Past 7 Days' },
+    { value: 14, label: 'Past 14 Days' },
+    { value: 31, label: 'Past 31 Days' },
+    { value: 60, label: 'Past 2 Months' },
+    { value: 90, label: 'Past 3 Months' },
+    { value: 365, label: 'Past 1 Year' }
   ];
 
   // Get current week's entries for the Weekly Deficit Progress
@@ -183,56 +182,28 @@ export default function ChartsPage({ entries }) {
   const weekStartDate = startOfWeek(currentWeekDate, { weekStartsOn: 1 });
   const weekEndDate = addDays(weekStartDate, 6);
   const weekDateRangeText = `${format(weekStartDate, 'EE, MMM d')} - ${format(weekEndDate, 'EE, MMM d, yyyy')}`;
-  // include day of th eweek
-    const weekDateRangeTextWithDay = 
-
 
   // Calculate chart data based on selected time range
-  useEffect(() => {
+  const getChartData = () => {
     const today = new Date();
-    let entriesForRange;
-    
-    switch (timeRange) {
-      case '7days':
-        entriesForRange = getEntriesForDateRange(sortedEntries, today, 7);
-        break;
-      case '14days':
-        entriesForRange = getEntriesForDateRange(sortedEntries, today, 14);
-        break;
-      case '31days':
-        entriesForRange = getEntriesForDateRange(sortedEntries, today, 31);
-        break;
-      case '2months':
-        entriesForRange = getEntriesForMonthRange(sortedEntries, today, 2);
-        break;
-      case '3months':
-        entriesForRange = getEntriesForMonthRange(sortedEntries, today, 3);
-        break;
-      case '6months':
-        entriesForRange = getEntriesForMonthRange(sortedEntries, today, 6);
-        break;
-      case '1year':
-        entriesForRange = getEntriesForMonthRange(sortedEntries, today, 12);
-        break;
-      default:
-        entriesForRange = getEntriesForDateRange(sortedEntries, today, 7);
-    }
-    
-    // Only fill missing days for shorter time ranges
-    const shouldFillMissingDays = ['7days', '14days', '31days'].includes(timeRange);
+    let entriesForRange = getEntriesForDateRange(sortedEntries, today, timeRange || 7);
     let processedEntries = entriesForRange;
-    
-    if (shouldFillMissingDays) {
-      const startDate = timeRange === '7days' ? subDays(today, 6) : 
-                        timeRange === '14days' ? subDays(today, 13) : 
-                        subDays(today, 30);
-      processedEntries = fillMissingDays(entriesForRange, startDate, today);
+
+    // Only fill missing days for shorter time ranges
+    if ([7, 14, 31].includes(timeRange)) {
+        const startDate = subDays(today, timeRange - 1);
+        processedEntries = fillMissingDays(entriesForRange, startDate, today);
     }
-    
-    // Apply weekly grouping if needed
-    const finalData = viewType === 'weekly' ? groupEntriesByWeek(processedEntries) : processedEntries;
-    setChartData(finalData);
-  }, [timeRange, viewType, sortedEntries]);
+
+    return viewType === 'weekly' ? groupEntriesByWeek(processedEntries) : processedEntries;
+  }
+  
+  // Use a minimal useEffect with empty dependency array
+  useEffect(() => {
+    const updatedChartData = getChartData();
+    setChartData(updatedChartData);
+  }, [viewType, timeRange, entries]);
+  
 
   return (
     <div className="container">
@@ -278,7 +249,7 @@ export default function ChartsPage({ entries }) {
             </div>
             
             {/* Weekly Deficit Progress - Only for current week */}
-            <WeeklyDeficitProgress entries={currentWeekEntries} />
+            <WeeklyDeficitProgress entries={currentWeekEntries} weightLossGoalPerWeek={weightLossGoalPerWeek} />
           </>
         )}
       </section>
@@ -354,7 +325,7 @@ export default function ChartsPage({ entries }) {
           defaultChartType="bar"
         />
       </section>
-
+      
       <Link to="/">Back to Home</Link>
     </div>
   );

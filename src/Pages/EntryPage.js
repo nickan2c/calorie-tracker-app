@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import InputField from './components/InputField';
-import EntriesTable from './components/EntriesTable';
-import './App.css';
-import { db } from './firebaseConfig/firebaseConfig';
+import InputField from '../components/InputField';
+import EntriesTable from '../components/EntriesTable';
+import '../App.css';
+import { db } from '../firebaseConfig/firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
 
 // Constants

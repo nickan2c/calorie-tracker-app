@@ -4,7 +4,7 @@ import { format, parseISO } from 'date-fns';
 // Constants
 const CALORIES_PER_KG = 7700; // Calories needed for 1kg of fat loss
 
-function WeeklyDeficitProgress({ entries, weeklyWeightLossGoal = 0.75 }) {
+function WeeklyDeficitProgress({ entries, weightLossGoalPerWeek }) {
   // Skip if no entries
   if (!entries || entries.length === 0) {
     return (
@@ -16,7 +16,7 @@ function WeeklyDeficitProgress({ entries, weeklyWeightLossGoal = 0.75 }) {
   }
 
   // Calculate calories needed for the goal
-  const caloriesForGoal = CALORIES_PER_KG * weeklyWeightLossGoal;
+  const caloriesForGoal = CALORIES_PER_KG * weightLossGoalPerWeek;
 
   // Calculate the total deficit for the week
   const totalDeficit = Math.abs(entries.reduce((sum, entry) => {
@@ -77,7 +77,7 @@ function WeeklyDeficitProgress({ entries, weeklyWeightLossGoal = 0.75 }) {
       </div>
       
       <div className="progress-labels">
-        <span>Progress toward {weeklyWeightLossGoal}kg ({caloriesForGoal.toLocaleString()} kcal)</span>
+        <span>Progress toward {weightLossGoalPerWeek}kg ({caloriesForGoal.toLocaleString()} kcal)</span>
         <span>
           {caloriesRemaining > 0 
             ? `${caloriesRemaining.toLocaleString()} kcal remaining`
@@ -101,8 +101,8 @@ function WeeklyDeficitProgress({ entries, weeklyWeightLossGoal = 0.75 }) {
         <div className="fat-cell-message">
           <p className="fat-cell-title">
             {percentTowardGoal >= 100
-              ? `You did it! ${weeklyWeightLossGoal}kg of fat burned!`
-              : `${caloriesRemaining.toLocaleString()} kcal to losing ${weeklyWeightLossGoal}kg of fat ${caloriesPerDayText ? `\nThat's ${caloriesPerDayText}` : ''}`}
+              ? `You did it! ${weightLossGoalPerWeek}kg of fat burned!`
+              : `${caloriesRemaining.toLocaleString()} kcal to losing ${weightLossGoalPerWeek}kg of fat ${caloriesPerDayText ? `\nThat's ${caloriesPerDayText}` : ''}`}
           </p>
           <p className="fat-cell-subtitle">
             {percentTowardGoal >= 100
