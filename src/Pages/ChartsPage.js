@@ -144,6 +144,7 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
     (a, b) => new Date(a.date) - new Date(b.date)
   );
 
+  const weight = sortedEntries.length > 0 ? sortedEntries[0].weight : 85; // Default weight if no entries
   // Week navigation for Fat Cell Progress
   const goToPreviousWeek = () => {
     setCurrentWeekDate(prevDate => subWeeks(prevDate, 1));
@@ -183,6 +184,7 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
   const weekEndDate = addDays(weekStartDate, 6);
   const weekDateRangeText = `${format(weekStartDate, 'EE, MMM d')} - ${format(weekEndDate, 'EE, MMM d, yyyy')}`;
 
+
   // Calculate chart data based on selected time range
   const getChartData = () => {
     const today = new Date();
@@ -194,6 +196,8 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
         const startDate = subDays(today, timeRange - 1);
         processedEntries = fillMissingDays(entriesForRange, startDate, today);
     }
+
+
 
     return viewType === 'weekly' ? groupEntriesByWeek(processedEntries) : processedEntries;
   }
@@ -298,16 +302,26 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
         />
         
         <MetricChart 
-          data={chartData} 
-          dataKey="weight" 
-          color="#3b82f6" 
-          label="Weight" 
+          data={chartData}
+          dataKey="weight"
+          color="#3b82f6"
+          label="Weight"
           customDomain={[
             (dataMin) => Math.floor(dataMin - 1),
             (dataMax) => Math.ceil(dataMax + 1),
           ]}
+          showTrend={true}
           defaultChartType="line"
+          extraLines={[
+            {
+              key: "weightTrend",
+              stroke: "#1e40af",
+              strokeDasharray: "5 5",
+              label: "Trend",
+            }
+          ]}
         />
+
         
         <MetricChart 
           data={chartData} 
@@ -315,6 +329,7 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
           color="#9333ea" 
           label="Steps" 
           defaultChartType="bar"
+          goalValue={10000}
         />
         
         <MetricChart 
@@ -323,6 +338,8 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
           color="#10b981" 
           label="Protein" 
           defaultChartType="bar"
+          goalValue={2* weight}
+
         />
       </section>
       

@@ -1,0 +1,67 @@
+.calendar-grid-wrapper {
+    max-width: 900px;
+    margin: auto;
+    text-align: center;
+  }
+  
+  .calendar-controls button {
+    margin: 5px;
+  }
+  
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-top: 10px;
+  }
+  
+  .day-label {
+    font-weight: bold;
+  }
+  
+  .day {
+    background: #f5f5f5;
+    padding: 8px;
+    min-height: 80px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-size: 0.8em;
+  }
+  
+  .day.has-entry {
+    background-color: #e0fbe0;
+  }
+  
+  .day.bad-day {
+    background-color: #ffe0e0 !important;
+    border-color: #ffaaaa;
+  }
+  
+  .entry-preview {
+    margin-top: 4px;
+    font-size: 0.75em;
+  }
+  
+  .stars {
+    margin-top: 2px;
+  }
+  
+  .list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    text-align: left;
+    margin-top: 10px;
+  }
+  
+  .list-entry {
+    border: 1px solid #ccc;
+    background: #f9f9f9;
+    padding: 10px;
+  }
+  
+  .list-entry.bad-day {
+    background-color: #ffe0e0;
+    border-color: #ffaaaa;
+  }
+  

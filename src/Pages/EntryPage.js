@@ -5,6 +5,8 @@ import EntriesTable from '../components/EntriesTable';
 import '../App.css';
 import { db } from '../firebaseConfig/firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
+import CalendarGrid from '../components/CalendarGrid';
+import EntryForm from '../components/EntryForm';
 
 // Constants
 const STEPS_BURN_RATE = 0.045;
@@ -27,8 +29,9 @@ const EMPTY_FORM = {
   deficit: 0,
 };
 
-function EntryPage({ entries, fetchEntries, tdee, goalIntake }) {
+function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalSteps }) {
   const [form, setForm] = useState(EMPTY_FORM);
+  const [viewMode, setViewMode] = useState('grid'); // 'list' or 'grid'
   const [editingIndex, setEditingIndex] = useState(-1);
   const [warning, setWarning] = useState('');
   const [confirmOverwrite, setConfirmOverwrite] = useState(false);
@@ -131,101 +134,51 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake }) {
 
       {warning && <div className="warning">{warning}</div>}
 
-      <form onSubmit={handleSubmit} className="form-grid">
-        <InputField 
-          label="Date" 
-          name="date" 
-          type="date" 
-          value={form.date} 
-          onChange={handleChange} 
-        />
-        <InputField 
-          label="Weight (kg)" 
-          name="weight" 
-          type="number" 
-          value={form.weight} 
-          onChange={handleChange} 
-          placeholder={mostRecentEntry.weight || 'e.g. 84'} 
-        />
-        <InputField 
-          label="Calorie Intake" 
-          name="intake" 
-          type="number" 
-          value={form.intake} 
-          onChange={handleChange} 
-          placeholder={mostRecentEntry.intake || 'e.g. 2000'} 
-          required 
-          hasError={formErrors.intake}  // Add error styling if intake is invalid
-        />
-        <InputField 
-          label="Protein (g)" 
-          name="protein" 
-          type="number" 
-          value={form.protein} 
-          onChange={handleChange} 
-          placeholder={mostRecentEntry.protein || 'e.g. 150'} 
-          required 
-          hasError={formErrors.protein}  // Add error styling if protein is invalid
-        />
-        <InputField 
-          label="Steps" 
-          name="steps" 
-          type="number" 
-          value={form.steps} 
-          onChange={handleChange} 
-          placeholder={mostRecentEntry.steps || 'e.g. 10000'} 
-        />
-        <InputField 
-          label="Cardio (cal)" 
-          name="cardio" 
-          type="number" 
-          value={form.cardio} 
-          onChange={handleChange} 
-          placeholder={mostRecentEntry.cardio || 'e.g. 300'} 
-        />
-        <InputField 
-          label="Exercise 1" 
-          name="exercise1" 
-          type="text" 
-          value={form.exercise1} 
-          onChange={handleChange} 
-          placeholder={mostRecentEntry.exercise1 || 'e.g. Running'} 
-        />
-        <InputField 
-          label="Exercise 2" 
-          name="exercise2" 
-          type="text" 
-          value={form.exercise2} 
-          onChange={handleChange} 
-          placeholder={mostRecentEntry.exercise2 || 'e.g. Cycling'} 
-        />
-        <InputField 
-          label="Notes" 
-          name="notes" 
-          type="text" 
-          value={form.notes} 
-          onChange={handleChange} 
-          placeholder={mostRecentEntry.notes || 'e.g. Felt great today!'} 
-        />
-
-        <div className="button-group">
-          {editingIndex >= 0 ? (
-            <>
-              <button type="submit" className="update-button">Update</button>
-              <button type="button" className="cancel-button" onClick={cancelEdit}>Cancel</button>
-            </>
-          ) : (
-            <button type="submit">Add Entry</button>
-          )}
-        </div>
-      </form>
-
-      <EntriesTable
-        entries={entries}
-        onEdit={handleEdit}
+      <EntryForm
+        form={form}
+        handleChange={handleChange}
+        handleSubmit={handleSubmit}
+        cancelEdit={cancelEdit}
         editingIndex={editingIndex}
-        refreshEntries={fetchEntries}
+        warning={warning}
+        formErrors={formErrors}
+        mostRecentEntry={mostRecentEntry}
       />
+
+
+
+      <div className="view-toggle">
+  <button onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}>
+    Switch to {viewMode === 'list' ? 'Grid View 📅' : 'List View 📋'}
+  </button>
+</div>
+
+
+      {viewMode === 'list' ? (
+  <EntriesTable
+    entries={entries}
+    onEdit={handleEdit}
+    editingIndex={editingIndex}
+    refreshEntries={fetchEntries}
+  />
+) : (
+  <CalendarGrid
+    entries={entries}
+    onEdit={handleEdit}
+    editingIndex={editingIndex}
+    setEditingIndex={setEditingIndex}
+    fetchEntries={fetchEntries}
+    tdee={tdee}
+    goalIntake={goalIntake}
+    goals = {
+      {goalIntake,
+      goalProtein, 
+      goalSteps}
+    }
+    setForm={setForm}
+  />
+)}
+
 
       <Link to="/charts">📈 View Charts</Link>
     </div>

@@ -11,12 +11,17 @@ import "./App.css";
 const DEFAULT_TDEE = "2700";
 const DEFAULT_GOAL_INTAKE = "2200";
 const DEFAULT_GOAL_LOSS = "0.5"; // kg per week
+const DEFAULT_GOAL_STEPS = "10000"; // steps per day
+const DEFAULT_GOAL_PROTEIN = "180"; // actually use 2x bw
 // TODO add height weight and use it to calc steps kcal burnt
 
 function App() {
   const [entries, setEntries] = useState([]);
   const [tdee, setTdee] = useState(DEFAULT_TDEE);
   const [goalIntake, setGoalIntake] = useState(DEFAULT_GOAL_INTAKE);
+  const [goalSteps, setgoalSteps] = useState(DEFAULT_GOAL_STEPS);
+  const [goalProtein, setGoalProtein] = useState(entries.length > 0 ? 2 *  entries[0].weight : DEFAULT_GOAL_PROTEIN); // Default to 2x body weight if available
+
   const [weightLossGoalPerWeek, setWeightLossGoalPerWeek] = useState(DEFAULT_GOAL_LOSS);
 
   // todo move to util
@@ -47,18 +52,25 @@ function App() {
           fetchEntries={fetchEntries} 
           tdee={tdee} 
           goalIntake={goalIntake} 
+          goalSteps={goalSteps}
+          goalProtein={goalProtein}
         />} />
         <Route path="/settings" element={<SettingsPage 
           tdee={tdee} 
           setTdee={setTdee} 
           goalIntake={goalIntake} 
           setGoalIntake={setGoalIntake} 
+          goalSteps={goalSteps}
+          setgoalSteps={setgoalSteps}
+          goalProtein={goalProtein}
+          setGoalProtein={setGoalProtein}
           weightLossGoalPerWeek={weightLossGoalPerWeek} 
           setWeightLossGoalPerWeek={setWeightLossGoalPerWeek} 
         />} />
         <Route path="/charts" element={<ChartsPage 
           entries={entries} 
           weightLossGoalPerWeek={weightLossGoalPerWeek}
+          weight={entries.length > 0 ? entries[0].weight : null}
         />} />
       </Routes>
     </Router>
