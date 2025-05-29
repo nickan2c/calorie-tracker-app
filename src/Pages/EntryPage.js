@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import InputField from '../components/InputField';
 import EntriesTable from '../components/EntriesTable';
 import '../App.css';
+import './EntryPage.css'; // Import the new CSS file
 import { db } from '../firebaseConfig/firebaseConfig';
 import { doc, setDoc } from 'firebase/firestore';
 import CalendarGrid from '../components/CalendarGrid';
 import EntryForm from '../components/EntryForm';
+import { calculateDeficit } from '../helper'; // Assuming you have a utility function for this
 
 // Constants
 const STEPS_BURN_RATE = 0.045;
@@ -45,10 +47,6 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
 
   const mostRecentEntry = getMostRecentEntry();
 
-  const calculateDeficit = ({ steps, cardio, intake, tdee }) => {
-    return Math.round(intake - tdee - Number(cardio || 0));
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -56,6 +54,19 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
     const newValue = name === "steps" || name === "intake" ? parseInt(value) : value;
     let updated = { ...form, [name]: newValue };
 
+    if (name === "date") {
+      // fetch entry for selected date and prepopulate form
+      const existingEntry = entries.find(entry => entry.date === value);
+      if (existingEntry) {
+        updated = { ...existingEntry, date: value };
+        updated.deficit = calculateDeficit({ tdee, ...updated });
+        setFormErrors({});
+      } else {
+        // use latest entry as a template
+        updated.deficit = calculateDeficit({ tdee, ...updated });
+      }
+
+    }
     updated.deficit = calculateDeficit({tdee, ...updated});
     setForm(updated);
   };
@@ -112,7 +123,6 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
     setEditingIndex(index);
     window.scrollTo({ top: 200, behavior: 'smooth' });
   };
-  
 
   const cancelEdit = () => {
     setForm(EMPTY_FORM);

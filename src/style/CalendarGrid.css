@@ -1,67 +1,575 @@
-.calendar-grid-wrapper {
-    max-width: 900px;
-    margin: auto;
-    text-align: center;
+/* CalendarGrid.css */
+
+.calendar-container {
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+  border-radius: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Header Styles */
+.calendar-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.calendar-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.calendar-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.nav-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: white;
+  border-radius: 9999px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: none;
+  cursor: pointer;
+  color: #374151;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-button:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: scale(1.05);
+}
+
+.today-button {
+  padding: 0.5rem 1.5rem;
+  background: #3b82f6;
+  color: white;
+  border-radius: 9999px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.today-button:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  transform: scale(1.05);
+}
+
+.view-toggle-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  color: white;
+  border-radius: 9999px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.view-toggle-button:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Grid View Styles */
+.calendar-grid-container {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem;
+}
+
+.day-labels {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.day-label {
+  text-align: center;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #4b5563;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(44px, 1fr));
+
+  gap: 0.5rem;
+}
+.calendar-grid-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.calendar-day {
+  position: relative;
+  padding-top: 100%; /* fallback for aspect ratio */
+  aspect-ratio: 1;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
+}
+
+.calendar-day > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-day:hover {
+  transform: scale(1.05);
+}
+
+.calendar-day.empty {
+  cursor: default;
+}
+
+.calendar-day.empty:hover {
+  transform: none;
+}
+
+.calendar-day.today {
+  ring: 4px;
+  ring-color: rgba(96, 165, 250, 0.5);
+}
+
+.calendar-day.has-entry {
+  border: 2px solid;
+}
+
+.calendar-day.has-entry:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-day.no-entry {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+.calendar-day.no-entry:hover {
+  background: #f3f4f6;
+}
+
+.calendar-day.bad-day {
+  ring: 2px;
+  ring-color: #f87171;
+}
+
+/* Score-based backgrounds */
+.calendar-day.score-excellent {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.calendar-day.score-good {
+  background: #fefce8;
+  border-color: #fde047;
+}
+
+.calendar-day.score-fair {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.calendar-day.score-poor {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.day-number {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  color: #374151;
+}
+
+.day-number.today {
+  color: #2563eb;
+}
+
+.entry-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.entry-stats {
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.entry-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.entry-stat-value {
+  font-weight: 500;
+}
+
+.goal-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.125rem;
+  margin-top: 0.5rem;
+}
+
+.goal-indicator {
+  font-size: 0.75rem;
+}
+
+.goal-indicator.met {
+  opacity: 1;
+}
+
+.goal-indicator.not-met {
+  opacity: 0.3;
+}
+
+.score-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.score-badge.excellent {
+  color: #059669;
+}
+
+.score-badge.good {
+  color: #d97706;
+}
+
+.score-badge.fair {
+  color: #ea580c;
+}
+
+.score-badge.poor {
+  color: #dc2626;
+}
+
+.empty-day-message {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* List View Styles */
+.list-view {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.list-entry {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid;
+}
+
+.list-entry:hover {
+  transform: scale(1.005);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.list-entry.bad-day {
+  ring: 2px;
+  ring-color: #f87171;
+}
+
+.list-entry.score-excellent {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.list-entry.score-good {
+  background: #fefce8;
+  border-color: #fde047;
+}
+
+.list-entry.score-fair {
+  background: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.list-entry.score-poor {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.list-entry-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.list-entry-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.list-entry-date {
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.list-entry-score {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.list-entry-score.excellent {
+  color: #059669;
+}
+
+.list-entry-score.good {
+  color: #d97706;
+}
+
+.list-entry-score.fair {
+  color: #ea580c;
+}
+
+.list-entry-score.poor {
+  color: #dc2626;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #4b5563;
+}
+
+.goal-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.goal-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.goal-badge.met {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+
+.goal-badge.not-met {
+  background: #f3f4f6;
+  color: #6b7280;
+  border-color: #e5e7eb;
+}
+
+.deficit-warning {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+}
+
+.deficit-warning-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #b91c1c;
+}
+
+.deficit-warning-text {
+  font-weight: 500;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.empty-state-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state-text {
+  color: #6b7280;
+}
+
+.calendar-scroll-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .calendar-day {
+  font-size: 0.65rem;
+}
+
+.day-number {
+  font-size: 0.75rem;
+}
+
+.entry-stat-value {
+  font-size: 0.75rem;
+}
+
+.goal-indicator {
+  font-size: 0.6rem;
+}
+
+.score-badge {
+  font-size: 0.7rem;
+}
+
+
+  .calendar-container {
+    padding: 1rem;
   }
   
-  .calendar-controls button {
-    margin: 5px;
+  .calendar-title {
+    font-size: 1.875rem;
   }
   
-  .calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    margin-top: 10px;
-  }
-  
-  .day-label {
-    font-weight: bold;
-  }
-  
-  .day {
-    background: #f5f5f5;
-    padding: 8px;
-    min-height: 80px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-    font-size: 0.8em;
-  }
-  
-  .day.has-entry {
-    background-color: #e0fbe0;
-  }
-  
-  .day.bad-day {
-    background-color: #ffe0e0 !important;
-    border-color: #ffaaaa;
-  }
-  
-  .entry-preview {
-    margin-top: 4px;
-    font-size: 0.75em;
-  }
-  
-  .stars {
-    margin-top: 2px;
-  }
-  
-  .list-view {
-    display: flex;
+  .calendar-navigation {
     flex-direction: column;
-    gap: 10px;
-    text-align: left;
-    margin-top: 10px;
+    gap: 0.5rem;
+  }
+  
+  .nav-button,
+  .today-button {
+    padding: 0.75rem 1rem;
+  }
+  
+  .calendar-grid-container {
+    padding: 1rem;
+  }
+  
+  .calendar-day {
+    padding: 0.25rem;
+  }
+  
+  .day-number {
+    font-size: 1rem;
+  }
+  
+  .entry-stats {
+    font-size: 0.625rem;
   }
   
   .list-entry {
-    border: 1px solid #ccc;
-    background: #f9f9f9;
-    padding: 10px;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-navigation {
+    gap: 0.25rem;
   }
   
-  .list-entry.bad-day {
-    background-color: #ffe0e0;
-    border-color: #ffaaaa;
+  .nav-button,
+  .today-button,
+  .view-toggle-button {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
   }
   
+  .day-labels {
+    gap: 0.25rem;
+  }
+  
+  .calendar-grid {
+    gap: 0.25rem;
+  }
+  
+  .calendar-day {
+    padding: 0.125rem;
+  }
+  
+  .day-number {
+    font-size: 0.875rem;
+  }
+}

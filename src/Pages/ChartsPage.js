@@ -8,6 +8,7 @@ import {
 import MetricChart from '../components/MetricChart';
 import WeeklyDeficitProgress from '../components/WeeklyDeficitProgress';
 import '../style/ChartsPage.css';
+import FatCellProgress from '../components/WeeklyDeficitProgress';
 
 // TODO fix buggy charts - not accurate I think. Check this.
 function groupEntriesByWeek(entries) {
@@ -51,19 +52,6 @@ function groupEntriesByWeek(entries) {
   }));
 }
 
-// Get entries for a specific week (Monday to Sunday)
-function getEntriesForWeek(entries, weekDate) {
-  const startOfSelectedWeek = startOfWeek(weekDate, { weekStartsOn: 1 }); // Monday
-  const endOfSelectedWeek = addDays(startOfSelectedWeek, 6); // Sunday
-
-  return entries.filter(entry => {
-    const entryDate = parseISO(entry.date);
-    return isWithinInterval(entryDate, {
-      start: startOfDay(startOfSelectedWeek),
-      end: endOfDay(endOfSelectedWeek)
-    });
-  });
-}
 
 // Get entries for a range of days from reference date
 function getEntriesForDateRange(entries, referenceDate, days) {
@@ -135,9 +123,7 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
   const [timeRange, setTimeRange] = useState(7);
   const [chartData, setChartData] = useState([]);
   
-  // State for week navigation (only used for the Weekly Deficit Progress)
-  const [currentWeekDate, setCurrentWeekDate] = useState(new Date());
-  const [showWeeklyProgress, setShowWeeklyProgress] = useState(true);
+
   
   // Sort entries by date
   const sortedEntries = [...entries].sort(
@@ -145,26 +131,6 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
   );
 
   const weight = sortedEntries.length > 0 ? sortedEntries[0].weight : 85; // Default weight if no entries
-  // Week navigation for Fat Cell Progress
-  const goToPreviousWeek = () => {
-    setCurrentWeekDate(prevDate => subWeeks(prevDate, 1));
-  };
-
-  const goToNextWeek = () => {
-    const nextWeek = addWeeks(currentWeekDate, 1);
-    // Don't allow navigating to future weeks beyond today
-    if (nextWeek <= new Date()) {
-      setCurrentWeekDate(nextWeek);
-    }
-  };
-
-  const goToCurrentWeek = () => {
-    setCurrentWeekDate(new Date());
-  };
-
-  // Check if we're at the current week
-  const isCurrentWeek = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd') === 
-                        format(startOfWeek(currentWeekDate, { weekStartsOn: 1 }), 'yyyy-MM-dd');
 
   // Time range options for charts
   const timeRangeOptions = [
@@ -175,15 +141,6 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
     { value: 90, label: 'Past 3 Months' },
     { value: 365, label: 'Past 1 Year' }
   ];
-
-  // Get current week's entries for the Weekly Deficit Progress
-  const currentWeekEntries = getEntriesForWeek(sortedEntries, currentWeekDate);
-  
-  // Format the week date range for display
-  const weekStartDate = startOfWeek(currentWeekDate, { weekStartsOn: 1 });
-  const weekEndDate = addDays(weekStartDate, 6);
-  const weekDateRangeText = `${format(weekStartDate, 'EE, MMM d')} - ${format(weekEndDate, 'EE, MMM d, yyyy')}`;
-
 
   // Calculate chart data based on selected time range
   const getChartData = () => {
@@ -196,8 +153,6 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
         const startDate = subDays(today, timeRange - 1);
         processedEntries = fillMissingDays(entriesForRange, startDate, today);
     }
-
-
 
     return viewType === 'weekly' ? groupEntriesByWeek(processedEntries) : processedEntries;
   }
@@ -214,49 +169,10 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
       <h1>Charts</h1>
       
       {/* Fat Cell Progress Section */}
-      <section className="weekly-progress-section">
-        <h2 className="section-title">
-          <span>Fat Cell Progress</span>
-          <button 
-            onClick={() => setShowWeeklyProgress(!showWeeklyProgress)} 
-            className="toggle-button"
-          >
-            {showWeeklyProgress ? 'Hide' : 'Show'}
-          </button>
-        </h2>
-        
-        {showWeeklyProgress && (
-          <>
-            {/* Week Navigation - Only for Fat Cell Progress */}
-            <div className="week-navigation">
-              <button 
-                onClick={goToPreviousWeek} 
-                className="nav-arrow"
-              >
-                ←
-              </button>
-              <div className="date-range">
-                <h2>{weekDateRangeText}</h2>
-                {!isCurrentWeek && (
-                  <button onClick={goToCurrentWeek} className="current-week-btn">
-                    Go to Current Week
-                  </button>
-                )}
-              </div>
-              <button 
-                onClick={goToNextWeek} 
-                className={`nav-arrow ${isCurrentWeek ? 'disabled' : ''}`}
-                disabled={isCurrentWeek}
-              >
-                →
-              </button>
-            </div>
-            
-            {/* Weekly Deficit Progress - Only for current week */}
-            <WeeklyDeficitProgress entries={currentWeekEntries} weightLossGoalPerWeek={weightLossGoalPerWeek} />
-          </>
-        )}
-      </section>
+      <FatCellProgress sortedEntries={sortedEntries} weightLossGoalPerWeek={weightLossGoalPerWeek} >
+
+      </FatCellProgress>
+    
       
       {/* Charts Section */}
       <section className="charts-section">

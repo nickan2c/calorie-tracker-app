@@ -1,6 +1,8 @@
 import { useState } from "react";
 import '../style/SettingsPage.css';
 import { Link } from "react-router-dom";
+import { db } from '../firebaseConfig/firebaseConfig';
+import { doc, setDoc } from 'firebase/firestore';
 
 function SettingsPage({ 
   tdee, 
@@ -27,6 +29,24 @@ function SettingsPage({
   const handleGoalStepsChange = (e) => setNewGoalSteps(e.target.value);
   const handleWeightLossGoalChange = (e) => setNewWeightLossGoalPerWeek(e.target.value);
   
+  // Function to persist settings to localStorage or database
+  const persistSettings = () => {
+    // Here you can implement the logic to save settings to localStorage or a database
+    // firebase
+    const settingsRef = doc(db, "settings", "userSettings");
+    setDoc(settingsRef, {
+      tdee: newTdee,
+      goalIntake: newGoalIntake,
+      goalProtein: newGoalProtein,
+      goalSteps: newGoalSteps,
+      weightLossGoalPerWeek: newWeightLossGoalPerWeek,
+    })
+    .then(() => {
+      console.log("Settings saved successfully!");
+    })}
+    
+
+
   const saveSettings = () => {
     setTdee(newTdee);
     setGoalIntake(newGoalIntake);
@@ -35,6 +55,7 @@ function SettingsPage({
     setWeightLossGoalPerWeek(newWeightLossGoalPerWeek);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+    persistSettings();
   };
 
   return (
