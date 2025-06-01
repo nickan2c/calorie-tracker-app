@@ -3,7 +3,7 @@
   margin: 0 auto;
   padding: 2rem;
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: var(--bg-primary);
   font-family: system-ui, -apple-system, sans-serif;
 }
 
@@ -14,14 +14,14 @@
 
 .home-header h1 {
   font-size: 2.5rem;
-  color: #0f172a;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
   font-weight: 700;
   letter-spacing: -0.5px;
 }
 
 .home-header .date {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 1.1rem;
   font-weight: 500;
 }
@@ -33,21 +33,21 @@
 }
 
 .dashboard-card {
-  background: white;
+  background: var(--card-bg);
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(226, 232, 240, 0.6);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .dashboard-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  box-shadow: var(--card-shadow);
 }
 
 .dashboard-card h2 {
-  color: #0f172a;
+  color: var(--text-primary);
   font-size: 1.25rem;
   margin-bottom: 1.5rem;
   font-weight: 600;
@@ -71,9 +71,10 @@
   flex-direction: column;
   align-items: center;
   padding: 1.5rem;
-  background: #f8fafc;
+  background: var(--bg-secondary);
   border-radius: 12px;
   transition: transform 0.2s ease;
+  border: 1px solid var(--border-color);
 }
 
 .metric:hover {
@@ -81,14 +82,14 @@
 }
 
 .metric-label {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 0.95rem;
   font-weight: 500;
   margin-bottom: 0.5rem;
 }
 
 .metric-value {
-  color: #0f172a;
+  color: var(--text-primary);
   font-size: 2rem;
   font-weight: 700;
   line-height: 1;
@@ -96,7 +97,7 @@
 }
 
 .metric-unit {
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
 }
@@ -107,7 +108,7 @@
 }
 
 .no-entry p {
-  color: #64748b;
+  color: var(--text-secondary);
   margin-bottom: 1.5rem;
   font-size: 1.1rem;
 }
@@ -118,9 +119,10 @@
 }
 
 .progress-container {
-  background: #f8fafc;
+  background: var(--bg-secondary);
   padding: 1.5rem;
   border-radius: 12px;
+  border: 1px solid var(--border-color);
 }
 
 .progress-stats {
@@ -136,14 +138,14 @@
 }
 
 .detail-label {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: 0.25rem;
 }
 
 .detail-value {
-  color: #0f172a;
+  color: var(--text-primary);
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 1;
@@ -151,21 +153,22 @@
 }
 
 .detail-unit {
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 0.875rem;
 }
 
 .progress-bar-container {
   height: 1.5rem;
-  background-color: #e2e8f0;
+  background-color: var(--bg-secondary);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--border-color);
 }
 
 .progress-bar {
   height: 100%;
-  background: linear-gradient(to right, #22c55e, #10b981);
+  background: var(--accent-color);
   border-radius: 12px;
   transition: width 0.5s ease-in-out;
   display: flex;
@@ -192,7 +195,7 @@
 }
 
 .progress-text {
-  color: white;
+  color: var(--bg-primary);
   font-size: 0.875rem;
   font-weight: 600;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -207,14 +210,12 @@
 }
 
 .stat-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  background: var(--bg-secondary);
   padding: 1.5rem;
-  background: #f8fafc;
   border-radius: 12px;
+  text-align: center;
   transition: transform 0.2s ease;
+  border: 1px solid var(--border-color);
 }
 
 .stat-item:hover {
@@ -222,23 +223,23 @@
 }
 
 .stat-value {
-  color: #0f172a;
-  font-size: 1.75rem;
+  color: var(--text-primary);
+  font-size: 2rem;
   font-weight: 700;
   line-height: 1;
   margin-bottom: 0.5rem;
 }
 
 .stat-label {
-  color: #64748b;
-  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
   font-weight: 500;
   margin-bottom: 0.25rem;
 }
 
 .stat-unit {
-  color: #94a3b8;
-  font-size: 0.875rem;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
 }
 
 /* Quick Actions Card */
@@ -253,25 +254,27 @@
   flex-direction: column;
   align-items: center;
   padding: 1.5rem;
-  background: #f8fafc;
+  background: var(--bg-secondary);
   border-radius: 12px;
   text-decoration: none;
   transition: all 0.2s ease;
+  border: 1px solid var(--border-color);
 }
 
 .action-btn:hover {
   transform: translateY(-2px);
-  background: #f1f5f9;
+  background: var(--accent-color);
+  color: var(--bg-primary);
 }
 
 .action-icon {
-  font-size: 2rem;
-  margin-bottom: 0.75rem;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .action-label {
-  color: #0f172a;
-  font-size: 1rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
   font-weight: 500;
 }
 
@@ -279,27 +282,27 @@
 .add-entry-btn,
 .update-btn {
   display: inline-block;
-  padding: 0.875rem 1.75rem;
-  background: linear-gradient(to right, #22c55e, #10b981);
-  color: white;
-  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  background: var(--accent-color);
+  color: var(--bg-primary);
   text-decoration: none;
-  font-weight: 600;
+  border-radius: 8px;
+  font-weight: 500;
   transition: all 0.2s ease;
-  border: none;
-  cursor: pointer;
+  text-align: center;
+  margin-top: 1rem;
 }
 
 .add-entry-btn:hover,
 .update-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--card-shadow);
 }
 
 .update-btn {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   width: 100%;
-  text-align: center;
 }
 
 @keyframes shimmer {
@@ -318,7 +321,7 @@
   }
 
   .dashboard-grid {
-    gap: 1.5rem;
+    grid-template-columns: 1fr;
   }
 
   .dashboard-card {
@@ -336,7 +339,6 @@
   }
 
   .dashboard-grid {
-    grid-template-columns: 1fr;
     gap: 1rem;
   }
 
@@ -350,7 +352,7 @@
 
   .today-metrics,
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
   }
 
@@ -358,7 +360,6 @@
     flex-direction: column;
     gap: 1rem;
     align-items: center;
-    text-align: center;
   }
 
   .progress-detail {
@@ -366,12 +367,11 @@
   }
 
   .dashboard-card {
-    padding: 1.25rem;
+    padding: 1rem;
   }
 
   .metric,
-  .stat-item,
-  .action-btn {
-    padding: 1.25rem;
+  .stat-item {
+    padding: 1rem;
   }
 } 

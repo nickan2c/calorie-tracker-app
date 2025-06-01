@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { 
   startOfWeek, formatISO, parseISO, format, 
   subDays, addDays, startOfDay, endOfDay, isWithinInterval,
-  subWeeks, addWeeks, subMonths, startOfMonth
+  subMonths, startOfMonth
 } from 'date-fns';
 import MetricChart from '../components/MetricChart';
 import WeeklyDeficitProgress from '../components/WeeklyDeficitProgress';
@@ -210,7 +210,6 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
     return (
       <div className="chart-container" key={metricKey}>
         <h2>
-          {metricOptions.find(m => m.value === metricKey)?.icon({ className: 'metric-icon' })}
           {config.label}
         </h2>
         <MetricChart
@@ -292,7 +291,7 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
 
       <div className="charts-grid">
         {selectedMetric === 'all' ? (
-          Object.keys(getMetricColor()).map(metricKey => renderChartSection(metricKey))
+          ['weight', 'deficit', 'steps', 'intake'].map(metricKey => renderChartSection(metricKey))
         ) : (
           renderChartSection(selectedMetric)
         )}

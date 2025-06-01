@@ -1,7 +1,7 @@
 /* Settings Page Styles */
 .settings-container {
     min-height: 100vh;
-    background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 50%, #f5f0ff 100%);
+    background: var(--bg-primary);
     padding: 0;
     margin: 0;
   }
@@ -20,7 +20,7 @@
   .back-button {
     display: inline-flex;
     align-items: center;
-    color: #6b7280;
+    color: var(--text-secondary);
     background: none;
     border: none;
     font-size: 1rem;
@@ -31,7 +31,7 @@
   }
   
   .back-button:hover {
-    color: #111827;
+    color: var(--text-primary);
   }
   
   .back-arrow {
@@ -47,22 +47,22 @@
   .settings-title {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #111827;
+    color: var(--text-primary);
     margin: 0 0 0.5rem 0;
   }
   
   .settings-subtitle {
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 1.1rem;
     margin: 0;
   }
   
   /* Settings Card */
   .settings-card {
-    background: white;
+    background: var(--card-bg);
     border-radius: 1.5rem;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    border: 1px solid #f3f4f6;
+    box-shadow: var(--card-shadow);
+    border: 1px solid var(--border-color);
     overflow: hidden;
   }
   
@@ -72,6 +72,10 @@
   
   .setting-group {
     margin-bottom: 2rem;
+    background: var(--card-bg);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
   }
   
   .setting-group:last-child {
@@ -97,23 +101,23 @@
   }
   
   .activity-icon {
-    background-color: #dbeafe;
+    background-color: var(--bg-secondary);
   }
   
   .target-icon {
-    background-color: #fed7aa;
+    background-color: var(--bg-secondary);
   }
   
   .weight-icon {
-    background-color: #dcfce7;
+    background-color: var(--bg-secondary);
   }
   
   .protein-icon {
-    background-color: #fef3c7;
+    background-color: var(--bg-secondary);
   }
   
   .steps-icon {
-    background-color: #e0e7ff;
+    background-color: var(--bg-secondary);
   }
   
   .setting-info {
@@ -124,13 +128,13 @@
     display: block;
     font-size: 1.2rem;
     font-weight: 600;
-    color: #111827;
+    color: var(--text-primary);
     margin-bottom: 0.25rem;
   }
   
   .setting-description {
     font-size: 0.9rem;
-    color: #6b7280;
+    color: var(--text-secondary);
     margin: 0;
     line-height: 1.4;
   }
@@ -144,21 +148,22 @@
     width: 100%;
     padding: 1rem 1.25rem;
     padding-right: 7rem;
-    border: 2px solid #d1d5db;
+    border: 2px solid var(--border-color);
     border-radius: 0.75rem;
     font-size: 1.1rem;
     transition: all 0.2s ease;
-    background: white;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
   }
   
   .setting-input:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
   }
   
   .setting-input::placeholder {
-    color: #9ca3af;
+    color: var(--text-secondary);
   }
   
   .input-unit {
@@ -166,7 +171,7 @@
     right: 1.25rem;
     top: 50%;
     transform: translateY(-50%);
-    color: #9ca3af;
+    color: var(--text-secondary);
     font-size: 0.9rem;
     pointer-events: none;
   }
@@ -174,8 +179,8 @@
   /* Save Section */
   .save-section {
     padding: 1.5rem 2rem;
-    background: #f9fafb;
-    border-top: 1px solid #f3f4f6;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
   }
   
   .save-button {
@@ -191,14 +196,15 @@
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
-    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-    color: white;
-    box-shadow: 0 4px 14px 0 rgba(59, 130, 246, 0.39);
+    background: var(--accent-color);
+    color: var(--bg-primary);
+    box-shadow: 0 4px 14px 0 rgba(74, 222, 128, 0.3);
   }
   
   .save-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px 0 rgba(59, 130, 246, 0.5);
+    background: var(--accent-hover);
+    box-shadow: 0 8px 25px 0 rgba(74, 222, 128, 0.4);
   }
   
   .save-button:active {
@@ -206,13 +212,11 @@
   }
   
   .save-button.saved {
-    background: #10b981;
-    box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.39);
+    background: var(--success-color);
   }
   
   .save-button.saved:hover {
-    background: #059669;
-    box-shadow: 0 8px 25px 0 rgba(16, 185, 129, 0.5);
+    background: var(--accent-hover);
   }
   
   .save-icon {
@@ -222,15 +226,15 @@
   /* Tips Section */
   .tips-section {
     margin-top: 2rem;
-    background: linear-gradient(135deg, #f0f4ff 0%, #f5f0ff 100%);
+    background: var(--bg-secondary);
     border-radius: 1.5rem;
     padding: 1.5rem;
-    border: 1px solid #e0e7ff;
+    border: 1px solid var(--border-color);
   }
   
   .tips-title {
     font-weight: 600;
-    color: #111827;
+    color: var(--text-primary);
     margin: 0 0 1rem 0;
     font-size: 1.1rem;
   }
@@ -243,7 +247,7 @@
   
   .tips-list li {
     font-size: 0.9rem;
-    color: #6b7280;
+    color: var(--text-secondary);
     margin-bottom: 0.5rem;
     line-height: 1.5;
   }
@@ -322,4 +326,91 @@
     .setting-icon {
       align-self: center;
     }
+  }
+  
+  /* Add to existing styles */
+  
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+  
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--border-color);
+    transition: .4s;
+    border-radius: 34px;
+  }
+  
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: var(--bg-primary);
+    transition: .4s;
+    border-radius: 50%;
+  }
+  
+  input:checked + .toggle-slider {
+    background-color: var(--accent-color);
+  }
+  
+  input:checked + .toggle-slider:before {
+    transform: translateX(26px);
+  }
+  
+  /* Theme icon styles */
+  .theme-icon {
+    font-size: 1.2rem;
+  }
+  
+  /* Dark mode specific styles */
+  .dark-mode .toggle-slider:before {
+    background-color: var(--bg-primary);
+  }
+  
+  .dark-mode .setting-group {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+  }
+  
+  .dark-mode .setting-description {
+    color: var(--text-secondary);
+  }
+  
+  .dark-mode input,
+  .dark-mode textarea {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+  }
+  
+  .dark-mode input:focus,
+  .dark-mode textarea:focus {
+    border-color: var(--accent-color);
+  }
+  
+  .dark-mode .save-button {
+    background-color: var(--accent-color);
+    color: var(--bg-primary);
+  }
+  
+  .dark-mode .save-button:hover {
+    background-color: var(--accent-hover);
   }

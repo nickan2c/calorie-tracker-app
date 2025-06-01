@@ -15,7 +15,7 @@ function getEntriesForWeek(weekStart, weekEnd, entries) {
 
 }
 
-function FatCellProgress({ sortedEntries, weightLossGoalPerWeek }) {
+function WeeklyDeficitProgress({ sortedEntries, weightLossGoalPerWeek }) {
   const [currentWeekDate, setCurrentWeekDate] = useState(new Date());
   const [showWeeklyProgress, setShowWeeklyProgress] = useState(true);
 
@@ -151,4 +151,4 @@ function FatCellProgress({ sortedEntries, weightLossGoalPerWeek }) {
   );
 }
 
-export default FatCellProgress;
+export default WeeklyDeficitProgress;

@@ -1,12 +1,13 @@
 .entry-form {
-    background-color: #ffffff;
+    background-color: var(--card-bg);
     border-radius: 12px;
     padding: 2rem;
     margin: 2rem 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+    box-shadow: var(--card-shadow);
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
+    border: 1px solid var(--border-color);
   }
   
   .input-field {
@@ -21,22 +22,24 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    color: #333;
+    color: var(--text-primary);
   }
   
   .input-field input,
   .input-field textarea {
-    border: 1px solid #ccc;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 10px 14px;
     font-size: 0.95rem;
     font-family: inherit;
-    transition: border-color 0.3s;
+    transition: all 0.3s ease;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
   }
   
   .input-field input:focus,
   .input-field textarea:focus {
-    border-color: #4a90e2;
+    border-color: var(--accent-color);
     outline: none;
     box-shadow: 0 0 4px rgba(74, 144, 226, 0.3);
   }
@@ -61,9 +64,9 @@
   
   .warning {
     grid-column: span 2;
-    background: #fee2e2;
-    border: 1px solid #fecaca;
-    color: #991b1b;
+    background: var(--error-bg);
+    border: 1px solid var(--error-text);
+    color: var(--error-text);
     padding: 12px 16px;
     border-radius: 8px;
     font-size: 14px;
@@ -89,37 +92,39 @@
   
   .add-button, 
   .update-button {
-    background: linear-gradient(135deg, #22c55e, #10b981);
-    color: white;
+    background: var(--accent-color);
+    color: var(--bg-primary);
     border: none;
   }
   
   .add-button:hover, 
   .update-button:hover {
+    background: var(--accent-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+    box-shadow: var(--card-shadow);
   }
   
   .delete-button {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
+    background: var(--error-text);
+    color: var(--bg-primary);
     border: none;
   }
   
   .delete-button:hover {
+    opacity: 0.9;
     transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);
+    box-shadow: var(--card-shadow);
   }
   
   .cancel-button {
-    background: white;
-    border: 1px solid #e5e7eb;
-    color: #6b7280;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
   }
   
   .cancel-button:hover {
-    background: #f9fafb;
-    border-color: #d1d5db;
+    background: var(--bg-primary);
+    border-color: var(--border-color);
   }
   
   /* Mobile Optimization */

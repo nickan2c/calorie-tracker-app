@@ -13,7 +13,7 @@
 }
 
 .modal-content {
-  background: white;
+  background: var(--card-bg);
   border-radius: 20px;
   padding: 20px;
   width: 90%;
@@ -22,6 +22,9 @@
   overflow-y: auto;
   position: relative;
   animation: slideUp 0.3s ease-out;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+  color: var(--text-primary);
 }
 
 .modal-close {
@@ -31,7 +34,7 @@
   background: none;
   border: none;
   font-size: 24px;
-  color: #666;
+  color: var(--text-secondary);
   cursor: pointer;
   width: 40px;
   height: 40px;
@@ -39,17 +42,18 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
 }
 
 .modal-close:hover {
-  background-color: #f0f0f0;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .modal-content h2 {
   margin: 0 0 20px;
   padding-right: 40px;
-  color: #333;
+  color: var(--text-primary);
   font-size: 1.5rem;
 }
 

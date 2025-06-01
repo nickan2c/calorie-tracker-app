@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
-import { HashRouter as Router, Route, Routes } from "react-router-dom";
+import { HashRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "./firebaseConfig/firebaseConfig";
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { DarkModeProvider } from './context/DarkModeContext';
 import ChartsPage from "./Pages/ChartsPage";
 import SettingsPage from "./Pages/SettingsPage";
 import EntryPage from "./Pages/EntryPage";
+import Login from "./components/Login";
 import NavBar from "./components/NavBar";
 import "./App.css";
 
@@ -17,86 +20,139 @@ const DEFAULT_GOAL_STEPS = "10000"; // steps per day
 const DEFAULT_GOAL_PROTEIN = "180"; // actually use 2x bw
 // TODO add height weight and use it to calc steps kcal burnt
 
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+  
+  return children;
+}
+
 function App() {
   const [entries, setEntries] = useState([]);
-  const [tdee, setTdee] = useState(DEFAULT_TDEE);
-  const [goalIntake, setGoalIntake] = useState(DEFAULT_GOAL_INTAKE);
-  const [goalSteps, setgoalSteps] = useState(DEFAULT_GOAL_STEPS);
-  const [goalProtein, setGoalProtein] = useState(entries.length > 0 ? 2 *  entries[0].weight : DEFAULT_GOAL_PROTEIN); // Default to 2x body weight if available
-
+  const [settings, setSettings] = useState({
+    tdee: 2000,
+    goalIntake: 1500,
+    goalProtein: 150,
+    goalSteps: 10000
+  });
   const [weightLossGoalPerWeek, setWeightLossGoalPerWeek] = useState(DEFAULT_GOAL_LOSS);
-
-  const fetchSettings = async () => {
-    try {
-      const settingsRef = doc(db, "settings", "userSettings");
-      const settingsDoc = await getDoc(settingsRef);
-      if (settingsDoc.exists()) {
-        const settingsData = settingsDoc.data();
-        console.log("Settings fetched:", settingsData);
-        setTdee(settingsData.tdee || DEFAULT_TDEE);
-        setGoalIntake(settingsData.goalIntake || DEFAULT_GOAL_INTAKE);
-        setGoalProtein(settingsData.goalProtein || DEFAULT_GOAL_PROTEIN);
-        setgoalSteps(settingsData.goalSteps || DEFAULT_GOAL_STEPS);
-        setWeightLossGoalPerWeek(settingsData.weightLossGoalPerWeek || DEFAULT_GOAL_LOSS);
-      } else {
-        console.log("No settings found, using defaults.");
-      }
-    } catch (error) {
-      console.error("Error fetching settings:", error);
-    }
-  }
+  const { currentUser } = useAuth();
 
   const fetchEntries = async () => {
+    if (!currentUser) {
+      setEntries([]);
+      return;
+    }
+
     try {
-      const entriesRef = collection(db, "entries");
-      const q = query(entriesRef, orderBy("date", "desc")); 
-          
-      const querySnapshot = await getDocs(q);
-      const data = querySnapshot.docs.map(doc => doc.data());
-      setEntries(data);
+      const userEntriesRef = collection(db, "users", currentUser.uid, "entries");
+      const querySnapshot = await getDocs(userEntriesRef);
+      const entriesData = querySnapshot.docs.map(doc => ({
+        ...doc.data(),
+        id: doc.id
+      }));
+      setEntries(entriesData);
     } catch (error) {
       console.error("Error fetching entries:", error);
     }
   };
 
-  // Load entries from Firebase only once on component mount
+  const fetchSettings = async () => {
+    if (!currentUser) {
+      setSettings({
+        tdee: 2000,
+        goalIntake: 1500,
+        goalProtein: 150,
+        goalSteps: 10000
+      });
+      return;
+    }
+
+    try {
+      const userDocRef = doc(db, "users", currentUser.uid);
+      const docSnap = await getDoc(userDocRef);
+      
+      if (docSnap.exists() && docSnap.data().settings) {
+        setSettings(docSnap.data().settings);
+      } else {
+        // If no settings exist, create default settings
+        const defaultSettings = {
+          tdee: 2000,
+          goalIntake: 1500,
+          goalProtein: 150,
+          goalSteps: 10000
+        };
+        await setDoc(userDocRef, { settings: defaultSettings }, { merge: true });
+        setSettings(defaultSettings);
+      }
+    } catch (error) {
+      console.error("Error fetching settings:", error);
+    }
+  };
+
   useEffect(() => {
     fetchEntries();
     fetchSettings();
-  }, []); // Empty dependency array means this runs once on mount
+  }, [currentUser]);
 
   return (
     <Router>
       <NavBar />
       <Routes>
-        <Route path="/" element={<EntryPage 
-          entries={entries} 
-          fetchEntries={fetchEntries} 
-          tdee={tdee} 
-          goalIntake={goalIntake} 
-          goalSteps={goalSteps}
-          goalProtein={goalProtein}
-        />} />
-        <Route path="/settings" element={<SettingsPage 
-          tdee={tdee} 
-          setTdee={setTdee} 
-          goalIntake={goalIntake} 
-          setGoalIntake={setGoalIntake} 
-          goalSteps={goalSteps}
-          setgoalSteps={setgoalSteps}
-          goalProtein={goalProtein}
-          setGoalProtein={setGoalProtein}
-          weightLossGoalPerWeek={weightLossGoalPerWeek} 
-          setWeightLossGoalPerWeek={setWeightLossGoalPerWeek} 
-        />} />
-        <Route path="/charts" element={<ChartsPage 
-          entries={entries} 
-          weightLossGoalPerWeek={weightLossGoalPerWeek}
-          weight={entries.length > 0 ? entries[0].weight : null}
-        />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={
+          <ProtectedRoute>
+            <EntryPage 
+              entries={entries} 
+              fetchEntries={fetchEntries} 
+              tdee={settings.tdee} 
+              goalIntake={settings.goalIntake} 
+              goalSteps={settings.goalSteps}
+              goalProtein={settings.goalProtein}
+            />
+          </ProtectedRoute>
+        } />
+        <Route path="/settings" element={
+          <ProtectedRoute>
+            <SettingsPage 
+              tdee={settings.tdee} 
+              setTdee={(value) => setSettings({ ...settings, tdee: value })} 
+              goalIntake={settings.goalIntake} 
+              setGoalIntake={(value) => setSettings({ ...settings, goalIntake: value })} 
+              goalSteps={settings.goalSteps}
+              setgoalSteps={(value) => setSettings({ ...settings, goalSteps: value })}
+              goalProtein={settings.goalProtein}
+              setGoalProtein={(value) => setSettings({ ...settings, goalProtein: value })}
+              weightLossGoalPerWeek={weightLossGoalPerWeek} 
+              setWeightLossGoalPerWeek={(value) => setWeightLossGoalPerWeek(value)} 
+            />
+          </ProtectedRoute>
+        } />
+        <Route path="/charts" element={
+          <ProtectedRoute>
+            <ChartsPage 
+              entries={entries} 
+              weightLossGoalPerWeek={weightLossGoalPerWeek}
+              weight={entries.length > 0 ? entries[0].weight : null}
+            />
+          </ProtectedRoute>
+        } />
       </Routes>
     </Router>
   );
 }
 
-export default App;
+function AppWithAuth() {
+  return (
+    <AuthProvider>
+      <DarkModeProvider>
+        <App />
+      </DarkModeProvider>
+    </AuthProvider>
+  );
+}
+
+export default AppWithAuth;

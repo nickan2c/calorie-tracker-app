@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import '../style/SettingsPage.css';
 import { Link } from "react-router-dom";
 import { db } from '../firebaseConfig/firebaseConfig';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { useAuth } from '../context/AuthContext';
+import { useDarkMode } from '../context/DarkModeContext';
 
 function SettingsPage({ 
   tdee, 
@@ -16,46 +18,76 @@ function SettingsPage({
   weightLossGoalPerWeek, 
   setWeightLossGoalPerWeek 
 }) {
+  const { currentUser } = useAuth();
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [newTdee, setNewTdee] = useState(tdee || "");
   const [newGoalIntake, setNewGoalIntake] = useState(goalIntake || "");
   const [newGoalProtein, setNewGoalProtein] = useState(goalProtein || "");
   const [newGoalSteps, setNewGoalSteps] = useState(goalSteps || "");
   const [newWeightLossGoalPerWeek, setNewWeightLossGoalPerWeek] = useState(weightLossGoalPerWeek || "");
+  const [username, setUsername] = useState("");
+  const [newUsername, setNewUsername] = useState("");
   const [saved, setSaved] = useState(false);
+  const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      try {
+        const userDocRef = doc(db, "users", currentUser.uid);
+        const docSnap = await getDoc(userDocRef);
+        if (docSnap.exists() && docSnap.data().username) {
+          setUsername(docSnap.data().username);
+          setNewUsername(docSnap.data().username);
+        }
+      } catch (error) {
+        console.error("Error fetching username:", error);
+      }
+    };
+    fetchUsername();
+  }, [currentUser]);
 
   const handleTdeeChange = (e) => setNewTdee(e.target.value);
   const handleGoalIntakeChange = (e) => setNewGoalIntake(e.target.value);
   const handleGoalProteinChange = (e) => setNewGoalProtein(e.target.value);
   const handleGoalStepsChange = (e) => setNewGoalSteps(e.target.value);
   const handleWeightLossGoalChange = (e) => setNewWeightLossGoalPerWeek(e.target.value);
+  const handleUsernameChange = (e) => setNewUsername(e.target.value);
   
-  // Function to persist settings to localStorage or database
-  const persistSettings = () => {
-    // Here you can implement the logic to save settings to localStorage or a database
-    // firebase
-    const settingsRef = doc(db, "settings", "userSettings");
-    setDoc(settingsRef, {
-      tdee: newTdee,
-      goalIntake: newGoalIntake,
-      goalProtein: newGoalProtein,
-      goalSteps: newGoalSteps,
-      weightLossGoalPerWeek: newWeightLossGoalPerWeek,
-    })
-    .then(() => {
-      console.log("Settings saved successfully!");
-    })}
-    
-
+  const handleSave = async () => {
+    try {
+      const userDocRef = doc(db, "users", currentUser.uid);
+      await setDoc(userDocRef, {
+        username: newUsername,
+        settings: {
+          tdee: Number(newTdee),
+          goalIntake: Number(newGoalIntake),
+          goalSteps: Number(newGoalSteps),
+          goalProtein: Number(newGoalProtein),
+          weightLossGoalPerWeek: Number(newWeightLossGoalPerWeek)
+        }
+      }, { merge: true });
+      
+      // Update parent state
+      setTdee(Number(newTdee));
+      setGoalIntake(Number(newGoalIntake));
+      setGoalProtein(Number(newGoalProtein));
+      setgoalSteps(Number(newGoalSteps));
+      setWeightLossGoalPerWeek(Number(newWeightLossGoalPerWeek));
+      setUsername(newUsername);
+      
+      setMessage('Settings saved successfully!');
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      console.error("Error saving settings:", error);
+      setMessage('Error saving settings. Please try again.');
+      setTimeout(() => setMessage(''), 3000);
+    }
+  };
 
   const saveSettings = () => {
-    setTdee(newTdee);
-    setGoalIntake(newGoalIntake);
-    setGoalProtein(newGoalProtein);
-    setgoalSteps(newGoalSteps);
-    setWeightLossGoalPerWeek(newWeightLossGoalPerWeek);
+    handleSave();
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
-    persistSettings();
   };
 
   return (
@@ -63,8 +95,9 @@ function SettingsPage({
       <div className="settings-content">
         {/* Header */}
         <div className="settings-header">
-        <Link to="/"  className="back-button"><span className="back-arrow">←</span>
-        Back to Home</Link>
+          <Link to="/" className="back-button">
+            <span className="back-arrow">←</span>Back to Home
+          </Link>
           <h1 className="settings-title">Settings</h1>
           <p className="settings-subtitle">Customize your health and fitness goals</p>
         </div>
@@ -73,6 +106,59 @@ function SettingsPage({
         <div className="settings-card">
           <div className="settings-form">
             
+            {/* Dark Mode Setting */}
+            <div className="setting-group">
+              <div className="setting-header">
+                <div className="setting-icon theme-icon">
+                  <span>{isDarkMode ? '🌙' : '☀️'}</span>
+                </div>
+                <div className="setting-info">
+                  <label className="setting-label">
+                    Dark Mode
+                  </label>
+                  <p className="setting-description">
+                    Toggle between light and dark theme
+                  </p>
+                </div>
+              </div>
+              <div className="input-container">
+                <label className="toggle-switch">
+                  <input
+                    type="checkbox"
+                    checked={isDarkMode}
+                    onChange={toggleDarkMode}
+                  />
+                  <span className="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            {/* Username Setting */}
+            <div className="setting-group">
+              <div className="setting-header">
+                <div className="setting-icon user-icon">
+                  <span>👤</span>
+                </div>
+                <div className="setting-info">
+                  <label className="setting-label">
+                    Username
+                  </label>
+                  <p className="setting-description">
+                    Your display name in the app
+                  </p>
+                </div>
+              </div>
+              <div className="input-container">
+                <input
+                  type="text"
+                  value={newUsername}
+                  onChange={handleUsernameChange}
+                  placeholder="Enter username"
+                  className="setting-input"
+                />
+              </div>
+            </div>
+
             {/* TDEE Setting */}
             <div className="setting-group">
               <div className="setting-header">
@@ -243,6 +329,13 @@ function SettingsPage({
             <li>• Adjust goals gradually as your fitness level improves</li>
           </ul>
         </div>
+
+        {/* Message Notification */}
+        {message && (
+          <div className="message-notification">
+            {message}
+          </div>
+        )}
       </div>
     </div>
   );

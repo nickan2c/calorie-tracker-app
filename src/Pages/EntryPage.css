@@ -5,6 +5,8 @@
   margin: 0 auto;
   padding: 20px;
   min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 .page-header {
@@ -17,46 +19,48 @@
 .page-header h1 {
   margin: 0;
   font-size: 2rem;
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .add-entry-button {
-  background: linear-gradient(135deg, #22c55e, #10b981);
-  color: white;
+  background: var(--accent-color);
+  color: var(--bg-primary);
   border: none;
   padding: 12px 24px;
   border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 2px 4px rgba(74, 222, 128, 0.2);
 }
 
 .add-entry-button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+  background: var(--accent-hover);
+  box-shadow: 0 4px 6px rgba(74, 222, 128, 0.3);
 }
 
 .add-entry-button:active {
   transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 2px 4px rgba(74, 222, 128, 0.2);
 }
 
 .stats-summary {
-  background: white;
+  background: var(--card-bg);
   border-radius: 16px;
   padding: 20px;
   margin-bottom: 24px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border-color);
 }
 
 .stats-summary p {
   margin: 8px 0;
-  color: #4b5563;
+  color: var(--text-secondary);
 }
 
 .stats-summary strong {
-  color: #1f2937;
+  color: var(--text-primary);
 }
 
 .view-toggle {
@@ -65,42 +69,42 @@
 }
 
 .view-toggle button {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   padding: 8px 16px;
   border-radius: 8px;
-  color: #4b5563;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .view-toggle button:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
 }
 
 .charts-link {
   display: inline-block;
   margin-top: 24px;
   padding: 12px 24px;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
-  color: #4b5563;
+  color: var(--text-secondary);
   text-decoration: none;
   transition: all 0.2s;
 }
 
 .charts-link:hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
   transform: translateY(-1px);
 }
 
 .warning {
-  background: #fee2e2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
+  background: var(--error-bg);
+  border: 1px solid var(--error-text);
+  color: var(--error-text);
   padding: 12px 16px;
   border-radius: 8px;
   margin-bottom: 16px;
@@ -147,8 +151,8 @@
 }
 
 .view-toggle button {
-  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
-  color: white;
+  background: var(--accent-color);
+  color: var(--bg-primary);
   border: none;
   padding: 12px 24px;
   border-radius: 8px;
@@ -159,12 +163,13 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 4px 6px rgba(66, 153, 225, 0.3);
+  box-shadow: var(--card-shadow);
 }
 
 .toggle-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(66, 153, 225, 0.4);
+  background: var(--accent-hover);
+  box-shadow: 0 6px 12px rgba(74, 222, 128, 0.4);
 }
 
 .toggle-btn:active {

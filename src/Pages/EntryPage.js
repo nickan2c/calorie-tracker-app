@@ -4,10 +4,12 @@ import EntriesTable from '../components/EntriesTable';
 import '../App.css';
 import './EntryPage.css';
 import { db } from '../firebaseConfig/firebaseConfig';
-import { doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc, collection } from 'firebase/firestore';
 import CalendarGrid from '../components/CalendarGrid';
 import EntryModal from '../components/EntryModal';
+import SettingsSummary from '../components/SettingsSummary';
 import { calculateDeficit } from '../helper';
+import { useAuth } from '../context/AuthContext';
 
 // Constants
 const STEPS_BURN_RATE = 0.045;
@@ -30,6 +32,7 @@ const EMPTY_FORM = {
 };
 
 function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalSteps }) {
+  const { currentUser } = useAuth();
   const [form, setForm] = useState(EMPTY_FORM);
   const [viewMode, setViewMode] = useState('grid');
   const [editingIndex, setEditingIndex] = useState(-1);
@@ -113,7 +116,9 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
     }
   
     try {
-      await setDoc(doc(db, "entries", docId), final);
+      // Save entry in user's subcollection
+      const userEntriesRef = collection(db, "users", currentUser.uid, "entries");
+      await setDoc(doc(userEntriesRef, docId), final);
       await fetchEntries();
       setIsModalOpen(false);
     } catch (error) {
@@ -138,7 +143,9 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
     }
 
     try {
-      await deleteDoc(doc(db, "entries", form.date));
+      // Delete from user's subcollection
+      const userEntryRef = doc(db, "users", currentUser.uid, "entries", form.date);
+      await deleteDoc(userEntryRef);
       await fetchEntries();
       setIsModalOpen(false);
       setForm(EMPTY_FORM);
@@ -217,14 +224,12 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
         </button>
       </div>
 
-      <div className="stats-summary">
-        <p>
-          <strong>TDEE:</strong> {tdee} | 
-          <strong> Goal Intake:</strong> {goalIntake} | 
-          <strong> Deficit:</strong> {goalIntake - tdee} kcal/day
-        </p>
-        <p>You will lose approx. <strong>{Math.abs(fatLossPerWeek)} kg/week</strong> at this rate.</p>
-      </div>
+      <SettingsSummary 
+        tdee={tdee}
+        goalIntake={goalIntake}
+        goalProtein={goalProtein}
+        goalSteps={goalSteps}
+      />
 
       <div className="view-toggle">
         <button onClick={() => setViewMode(viewMode === 'list' ? 'grid' : 'list')}>
