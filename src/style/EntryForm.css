@@ -1,36 +1,4 @@
 .entry-form {
-    background: #fff;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  }
-  
-  .warning {
-    background: #fff3cd;
-    color: #856404;
-    padding: 8px;
-    margin-bottom: 10px;
-    border-left: 4px solid #ffeeba;
-  }
-  
-  .button-group {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  
-  .update-button {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .cancel-button {
-    background-color: #6c757d;
-    color: white;
-  }
-  /* EntryForm.css */
-
-.entry-form {
     background-color: #ffffff;
     border-radius: 12px;
     padding: 2rem;
@@ -80,46 +48,6 @@
     line-height: 1.4;
   }
   
-  .button-group {
-    grid-column: span 2;
-    display: flex;
-    justify-content: flex-start;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  
-  button[type='submit'],
-  .cancel-button {
-    padding: 10px 20px;
-    font-size: 0.95rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-  }
-  
-  button[type='submit'] {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .cancel-button {
-    background-color: #6c757d;
-    color: white;
-  }
-  
-  .warning {
-    grid-column: span 2;
-    background-color: #fff3cd;
-    padding: 10px 15px;
-    border-left: 4px solid #ffc107;
-    font-size: 0.95rem;
-    color: #856404;
-    border-radius: 6px;
-  }
-  .notes-field-wrapper {
-    grid-column: span 2;
-  }
   .notes-field-wrapper {
     grid-column: span 2;
     display: flex;
@@ -129,6 +57,86 @@
   .notes-field-wrapper .input-field {
     width: 100%;
     max-width: 600px;
+  }
+  
+  .warning {
+    grid-column: span 2;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .button-group {
+    grid-column: span 2;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+  }
+  
+  .button-group button {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .add-button, 
+  .update-button {
+    background: linear-gradient(135deg, #22c55e, #10b981);
+    color: white;
+    border: none;
+  }
+  
+  .add-button:hover, 
+  .update-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+  }
+  
+  .delete-button {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+  }
+  
+  .delete-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(220, 38, 38, 0.2);
+  }
+  
+  .cancel-button {
+    background: white;
+    border: 1px solid #e5e7eb;
+    color: #6b7280;
+  }
+  
+  .cancel-button:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+  }
+  
+  /* Mobile Optimization */
+  @media (max-width: 640px) {
+    .entry-form {
+      padding: 1rem;
+      margin: 1rem 0;
+      grid-template-columns: 1fr;
+    }
+  
+    .button-group {
+      flex-direction: column;
+    }
+  
+    .button-group button {
+      width: 100%;
+    }
   }
   
   

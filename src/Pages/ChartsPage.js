@@ -8,7 +8,6 @@ import {
 import MetricChart from '../components/MetricChart';
 import WeeklyDeficitProgress from '../components/WeeklyDeficitProgress';
 import '../style/ChartsPage.css';
-import FatCellProgress from '../components/WeeklyDeficitProgress';
 
 // TODO fix buggy charts - not accurate I think. Check this.
 function groupEntriesByWeek(entries) {
@@ -118,28 +117,33 @@ function fillMissingDays(entries, startDate, endDate) {
 }
 
 export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
-  // State for chart data display
   const [viewType, setViewType] = useState('daily');
   const [timeRange, setTimeRange] = useState(7);
   const [chartData, setChartData] = useState([]);
-  
+  const [selectedMetric, setSelectedMetric] = useState('all');
 
-  
   // Sort entries by date
   const sortedEntries = [...entries].sort(
     (a, b) => new Date(a.date) - new Date(b.date)
   );
 
-  const weight = sortedEntries.length > 0 ? sortedEntries[0].weight : 85; // Default weight if no entries
+  const weight = sortedEntries.length > 0 ? sortedEntries[0].weight : 85;
 
-  // Time range options for charts
   const timeRangeOptions = [
     { value: 7, label: 'Past 7 Days' },
     { value: 14, label: 'Past 14 Days' },
-    { value: 31, label: 'Past 31 Days' },
+    { value: 31, label: 'Past Month' },
     { value: 60, label: 'Past 2 Months' },
     { value: 90, label: 'Past 3 Months' },
-    { value: 365, label: 'Past 1 Year' }
+    { value: 365, label: 'Past Year' }
+  ];
+
+  const metricOptions = [
+    { value: 'all', label: 'All Metrics' },
+    { value: 'weight', label: 'Weight' },
+    { value: 'deficit', label: 'Calorie Deficit' },
+    { value: 'steps', label: 'Daily Steps' },
+    { value: 'intake', label: 'Calorie Intake' }
   ];
 
   // Calculate chart data based on selected time range
@@ -148,118 +152,159 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
     let entriesForRange = getEntriesForDateRange(sortedEntries, today, timeRange || 7);
     let processedEntries = entriesForRange;
 
-    // Only fill missing days for shorter time ranges
     if ([7, 14, 31].includes(timeRange)) {
-        const startDate = subDays(today, timeRange - 1);
-        processedEntries = fillMissingDays(entriesForRange, startDate, today);
+      const startDate = subDays(today, timeRange - 1);
+      processedEntries = fillMissingDays(entriesForRange, startDate, today);
     }
 
     return viewType === 'weekly' ? groupEntriesByWeek(processedEntries) : processedEntries;
-  }
-  
-  // Use a minimal useEffect with empty dependency array
+  };
+
   useEffect(() => {
     const updatedChartData = getChartData();
     setChartData(updatedChartData);
   }, [viewType, timeRange, entries]);
-  
+
+  const getMetricColor = (metricKey) => {
+    const colors = {
+      weight: '#3b82f6',
+      deficit: '#22c55e',
+      steps: '#9333ea',
+      intake: '#f97316'
+    };
+    return colors[metricKey] || '#64748b';
+  };
+
+  const renderChartSection = (metricKey) => {
+    const metricConfig = {
+      weight: {
+        label: 'Weight Progress',
+        unit: 'kg',
+        goalValue: null,
+        chartType: 'line',
+        showTrend: true
+      },
+      deficit: {
+        label: 'Calorie Deficit',
+        unit: 'kcal',
+        goalValue: 500,
+        chartType: 'bar'
+      },
+      steps: {
+        label: 'Daily Steps',
+        unit: 'steps',
+        goalValue: 10000,
+        chartType: 'bar'
+      },
+      intake: {
+        label: 'Calorie Intake',
+        unit: 'kcal',
+        goalValue: 2000,
+        chartType: 'bar'
+      }
+    };
+
+    const config = metricConfig[metricKey];
+    if (!config) return null;
+
+    return (
+      <div className="chart-container" key={metricKey}>
+        <h2>
+          {metricOptions.find(m => m.value === metricKey)?.icon({ className: 'metric-icon' })}
+          {config.label}
+        </h2>
+        <MetricChart
+          data={chartData}
+          dataKey={metricKey}
+          color={getMetricColor(metricKey)}
+          label={config.label}
+          unit={config.unit}
+          goalValue={config.goalValue}
+          defaultChartType={config.chartType}
+          showTrend={config.showTrend}
+          customDomain={
+            metricKey === 'weight'
+              ? [(dataMin) => Math.floor(dataMin - 1), (dataMax) => Math.ceil(dataMax + 1)]
+              : undefined
+          }
+        />
+      </div>
+    );
+  };
 
   return (
     <div className="container">
-      <h1>Charts</h1>
+      <h1>Health & Fitness Analytics</h1>
       
-      {/* Fat Cell Progress Section */}
-      <FatCellProgress sortedEntries={sortedEntries} weightLossGoalPerWeek={weightLossGoalPerWeek} >
-
-      </FatCellProgress>
-    
+      <WeeklyDeficitProgress 
+        sortedEntries={sortedEntries} 
+        weightLossGoalPerWeek={weightLossGoalPerWeek}
+      />
       
-      {/* Charts Section */}
-      <section className="charts-section">
-        <h2 className="section-title">Metrics Charts</h2>
-        
-        <div className="chart-controls">
-          <div className="view-toggle">
-            <button 
-              onClick={() => setViewType('daily')} 
-              className={viewType === 'daily' ? 'active' : ''}
-            >
-              Daily View
-            </button>
-            <button 
-              onClick={() => setViewType('weekly')} 
-              className={viewType === 'weekly' ? 'active' : ''}
-            >
-              Weekly Averages
-            </button>
-          </div>
-
-          <div className="time-range-dropdown">
-            <label htmlFor="timeRange">Time Range:</label>
-            <select 
-              id="timeRange" 
-              value={timeRange} 
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="time-range-select"
-            >
-              {timeRangeOptions.map(option => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </div>
+      <div className="chart-controls">
+        <div className="view-toggle">
+          <button 
+            onClick={() => setViewType('daily')} 
+            className={viewType === 'daily' ? 'active' : ''}
+          >
+            Daily View
+          </button>
+          <button 
+            onClick={() => setViewType('weekly')} 
+            className={viewType === 'weekly' ? 'active' : ''}
+          >
+            Weekly Averages
+          </button>
         </div>
-        
-        <MetricChart 
-          data={chartData} 
-          dataKey="deficit" 
-          color="#ef4444" 
-          label="Calorie Deficit" 
-          defaultChartType="bar"
-        />
-        
-        <MetricChart 
-          data={chartData}
-          dataKey="weight"
-          color="#3b82f6"
-          label="Weight"
-          customDomain={[
-            (dataMin) => Math.floor(dataMin - 1),
-            (dataMax) => Math.ceil(dataMax + 1),
-          ]}
-          showTrend={true}
-          defaultChartType="line"
-          extraLines={[
-            {
-              key: "weightTrend",
-              stroke: "#1e40af",
-              strokeDasharray: "5 5",
-              label: "Trend",
-            }
-          ]}
-        />
 
-        
-        <MetricChart 
-          data={chartData} 
-          dataKey="steps" 
-          color="#9333ea" 
-          label="Steps" 
-          defaultChartType="bar"
-          goalValue={10000}
-        />
-        
-        <MetricChart 
-          data={chartData} 
-          dataKey="protein" 
-          color="#10b981" 
-          label="Protein" 
-          defaultChartType="bar"
-          goalValue={2* weight}
+        <div className="time-range-dropdown">
+          <label htmlFor="timeRange">Time Range:</label>
+          <select 
+            id="timeRange" 
+            value={timeRange} 
+            onChange={(e) => setTimeRange(Number(e.target.value))}
+            className="time-range-select"
+          >
+            {timeRangeOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        />
-      </section>
-      
-      <Link to="/">Back to Home</Link>
+        <div className="metric-toggle">
+          <label htmlFor="metricSelect">Show Metrics:</label>
+          <select
+            id="metricSelect"
+            value={selectedMetric}
+            onChange={(e) => setSelectedMetric(e.target.value)}
+            className="metric-select"
+          >
+            {metricOptions.map(option => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="charts-grid">
+        {selectedMetric === 'all' ? (
+          Object.keys(getMetricColor()).map(metricKey => renderChartSection(metricKey))
+        ) : (
+          renderChartSection(selectedMetric)
+        )}
+      </div>
+
+      {chartData.length === 0 && (
+        <div className="empty-card">
+          <h3>No Data Available</h3>
+          <p>Start tracking your health metrics to see your progress here!</p>
+          <Link to="/entry" className="add-entry-btn">Add Your First Entry</Link>
+        </div>
+      )}
     </div>
   );
 }

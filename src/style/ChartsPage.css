@@ -1,26 +1,54 @@
 .container {
-    max-width: 800px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 1.5rem;
-    font-family: sans-serif;
+    padding: 2rem;
+    background-color: #f8fafc;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, sans-serif;
   }
   
   h1 {
+    font-size: 2.25rem;
+    color: #0f172a;
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 3rem;
+    font-weight: 700;
+    position: relative;
+    letter-spacing: -0.5px;
+  }
+  
+  h1::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(to right, #22c55e, #10b981);
+    border-radius: 2px;
   }
   
   .chart-container {
-    margin-bottom: 2rem;
-    padding: 1rem;
-    border-radius: 1rem;
-    background-color: #f9fafb;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background: white;
+    border-radius: 20px;
+    padding: 1.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .chart-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
   }
   
   .chart-container h2 {
-    margin-bottom: 0.5rem;
+    color: #0f172a;
     font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.3px;
   }
   
   .chart-header {
@@ -55,43 +83,92 @@
   }
   
   .chart-controls {
-    margin-bottom: 1rem;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    margin-bottom: 2.5rem;
     display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(226, 232, 240, 0.6);
+  }
+  
+  .view-toggle {
+    display: flex;
+    gap: 0.5rem;
+  }
+  
+  .view-toggle button {
+    padding: 0.75rem 1.25rem;
+    font-weight: 600;
+    border: 2px solid transparent;
+    background-color: #f8fafc;
+    color: #64748b;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    min-width: 120px;
+  }
+  
+  .view-toggle button:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+  }
+  
+  .view-toggle button.active {
+    background: #22c55e;
+    color: white;
+  }
+  
+  .time-range-dropdown,
+  .metric-toggle {
+    display: flex;
+    align-items: center;
     gap: 1rem;
   }
   
-  .view-toggle,
-  .time-range-toggle {
-    display: flex;
-    gap: 0.5rem;
-    color: black;
-
+  .time-range-dropdown label,
+  .metric-toggle label {
+    color: #475569;
+    font-weight: 500;
+    white-space: nowrap;
   }
   
-  .view-toggle button,
-  .time-range-toggle button {
-    padding: 0.5rem 1rem;
-    font-weight: 600;
-    color: black;
-    border: 2px solid #ccc;
+  .time-range-select,
+  .metric-select {
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
     background-color: white;
-    color: black;
-
-    border-radius: 0.5rem;
+    border-radius: 10px;
+    color: #1e293b;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    min-width: 180px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem;
   }
   
-  .view-toggle button:hover,
-  .time-range-toggle button:hover {
-    background-color: #f0f0f0;
+  .time-range-select:hover,
+  .metric-select:hover {
+    border-color: #94a3b8;
   }
   
-  .view-toggle button.active,
-  .time-range-toggle button.active {
-    background-color: #10b981;
-    color: black;
-    border-color: #10b981;
+  .time-range-select:focus,
+  .metric-select:focus {
+    outline: none;
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
   }
   
   a {
@@ -109,78 +186,125 @@
   
   /* Weekly Deficit Progress Card Styles */
   .weekly-deficit-card {
-    background-color: #fff;
-    border-radius: 8px;
-    padding: 16px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-bottom: 24px;
-    border: 1px solid #f0f0f0;
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    margin-bottom: 2.5rem;
+    border: 1px solid rgba(226, 232, 240, 0.6);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .weekly-deficit-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
   }
   
   .deficit-card-header {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 10px;
+    margin-bottom: 2rem;
   }
   
   .deficit-card-title {
-    margin: 0 0 8px 0;
-    font-size: 18px;
+    color: #0f172a;
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
   }
   
   .deficit-card-date {
-    margin: 0;
-    font-size: 14px;
-    color: #666;
+    color: #64748b;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-top: 0.25rem;
   }
   
   .deficit-card-stats {
     text-align: right;
+    background: #f8fafc;
+    padding: 1.25rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    min-width: 200px;
   }
   
   .deficit-card-total {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #22c55e;
     margin: 0;
-    font-size: 24px;
-    font-weight: bold;
-    color: #ef4444;
+    line-height: 1;
+    letter-spacing: -1px;
   }
   
   .deficit-card-potential {
-    margin: 0;
-    font-size: 14px;
-    color: #666;
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
   }
   
   .progress-bar-container {
-    width: 100%;
-    height: 24px;
-    background-color: #f0f0f0;
+    height: 1.5rem;
+    background-color: #e2e8f0;
     border-radius: 12px;
     overflow: hidden;
-    margin-bottom: 8px;
+    margin: 1.5rem 0;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
   }
   
   .progress-bar {
     height: 100%;
-    background-color: #ef4444;
+    background: linear-gradient(to right, #22c55e, #10b981);
     border-radius: 12px;
     transition: width 0.5s ease-in-out;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.1) 25%,
+      rgba(255, 255, 255, 0.2) 50%,
+      rgba(255, 255, 255, 0.1) 75%
+    );
+    animation: shimmer 2s infinite linear;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
   }
   
   .progress-bar-text {
     color: white;
-    font-size: 12px;
-    font-weight: bold;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   }
   
   .progress-labels {
     display: flex;
     justify-content: space-between;
-    font-size: 14px;
+    color: #475569;
+    font-size: 0.95rem;
+    font-weight: 500;
   }
   
   .fat-cell-container {
@@ -221,9 +345,8 @@
     font-size: 14px;
     color: #666;
   }
-/* Add these styles to your ChartsPage.css file */
-
-.week-navigation {
+  
+  .week-navigation {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -287,64 +410,243 @@
     background-color: #c7d2fe;
   }
   
-  /* Add these to your ChartsPage.css file */
-
-/* Chart controls improvements */
-.chart-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding: 15px;
-  border-radius: 8px;
-  background-color: #f8f9fa;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.view-toggle {
-  display: flex;
-  gap: 10px;
-}
-
-.view-toggle button {
-  padding: 8px 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: white;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.view-toggle button.active {
-  background-color: #3b82f6;
-  color: white;
-  border-color: #2563eb;
-}
-
-.view-toggle button:hover:not(.active) {
-  background-color: #f0f0f0;
-}
-
-/* Empty card styling */
-.empty-card {
-  background-color: #f9fafb;
-  text-align: center;
-  padding: 30px;
-  border-radius: 8px;
-  border: 1px dashed #ddd;
-  color: #6b7280;
-}
-
-/* Responsive adjustments */
-@media (min-width: 768px) {
-  .chart-controls {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+  /* Chart Tooltips and Interactions */
+  .recharts-tooltip-wrapper {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem;
   }
   
-  .time-range-dropdown {
-    margin-top: 0;
+  .recharts-default-tooltip {
+    background-color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
   }
-}
+  
+  /* Goal Lines and Reference Areas */
+  .recharts-reference-line line {
+    stroke: #22c55e !important;
+    stroke-dasharray: 3 3;
+  }
+  
+  .recharts-reference-line-label {
+    fill: #22c55e !important;
+  }
+  
+  /* Empty State Styling */
+  .empty-card {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 2px dashed #e2e8f0;
+    margin-top: 2rem;
+  }
+  
+  .empty-card h3 {
+    color: #0f172a;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  
+  .empty-card p {
+    color: #64748b;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 1024px) {
+    .container {
+      padding: 1.5rem;
+    }
+    
+    .charts-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    
+    .chart-container {
+      padding: 1.25rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .container {
+      padding: 1rem;
+    }
+    
+    h1 {
+      font-size: 1.75rem;
+      margin-bottom: 2rem;
+    }
+    
+    .chart-controls {
+      flex-direction: column;
+      padding: 1.25rem;
+      gap: 1rem;
+    }
+    
+    .view-toggle,
+    .time-range-dropdown,
+    .metric-toggle {
+      width: 100%;
+    }
+    
+    .view-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+    
+    .time-range-dropdown,
+    .metric-toggle {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+    }
+    
+    .time-range-select,
+    .metric-select {
+      width: 100%;
+    }
+    
+    .deficit-card-header {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    
+    .deficit-card-stats {
+      width: 100%;
+      text-align: left;
+    }
+    
+    .weekly-deficit-card,
+    .chart-container {
+      padding: 1.25rem;
+      border-radius: 16px;
+    }
+    
+    .empty-card {
+      padding: 2rem 1.5rem;
+    }
+    
+    .empty-card h3 {
+      font-size: 1.25rem;
+    }
+    
+    .empty-card p {
+      font-size: 1rem;
+    }
+    
+    .add-entry-btn {
+      padding: 0.875rem 1.75rem;
+      font-size: 1rem;
+    }
+  }
+  
+  /* Metric Selection Styles */
+  .metric-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  
+  .metric-toggle label {
+    color: #475569;
+    font-weight: 500;
+  }
+  
+  .metric-select {
+    padding: 0.5rem 1rem;
+    border: 2px solid #e2e8f0;
+    background-color: white;
+    border-radius: 8px;
+    color: #1e293b;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 150px;
+  }
+  
+  .metric-select:hover {
+    border-color: #94a3b8;
+  }
+  
+  .metric-select:focus {
+    outline: none;
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+  }
+  
+  /* Charts Grid Layout */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 600px), 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  
+  /* Metric Icons */
+  .metric-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.5rem;
+    color: #64748b;
+  }
+  
+  /* Add Entry Button */
+  .add-entry-btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background: linear-gradient(to right, #22c55e, #10b981);
+    color: white;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    font-size: 1.1rem;
+  }
+  
+  .add-entry-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+  }
+  
+  /* Additional Responsive Adjustments */
+  @media (max-width: 768px) {
+    .metric-toggle {
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    
+    .metric-select {
+      width: 100%;
+    }
+    
+    .charts-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+  
+  /* Chart Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }

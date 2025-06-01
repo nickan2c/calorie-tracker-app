@@ -1,302 +1,214 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import dayjs from 'dayjs';
 import '../style/CalendarGrid.css';
+import ConsistencyMetrics from './ConsistencyMetrics';
 
 const CalendarGrid = ({
   entries,
-  setForm,
-  setEditingIndex,
+  onEdit,
   goals
 }) => {
-  const [month, setMonth] = useState(dayjs().startOf('month'));
-  const [viewMode, setViewMode] = useState('grid');
-
-  const entryByDate = Object.fromEntries(entries.map(e => [dayjs(e.date).format('YYYY-MM-DD'), e]));
-  const daysInMonth = month.daysInMonth();
-  const startDay = month.startOf('month').day();
-  const today = dayjs().format('YYYY-MM-DD');
-
+  const [currentMonth, setCurrentMonth] = useState(dayjs().startOf('month'));
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState('calories');
+  const tooltipRef = useRef(null);
   
+  const metrics = [
+    { id: 'calories', label: 'Calories', key: 'intake', goal: 'goalIntake', compare: 'lte' },
+    { id: 'protein', label: 'Protein', key: 'protein', goal: 'goalProtein', compare: 'gte' },
+    { id: 'steps', label: 'Steps', key: 'steps', goal: 'goalSteps', compare: 'gte' },
+    { id: 'weight', label: 'Weight', key: 'weight' },
+    { id: 'cardio', label: 'Cardio', key: 'cardio', goal: 0, compare: 'gt' },
+    { id: 'exercise1', label: 'Exercise 1', key: 'exercise1', goal: false, compare: 'exists' },
+    { id: 'exercise2', label: 'Exercise 2', key: 'exercise2', goal: false, compare: 'exists' }
+  ];
+
+  const compareValue = (value, goal, compare) => {
+    if (!value) return false;
+    switch (compare) {
+      case 'lte': return value <= goal;
+      case 'gte': return value >= goal;
+      case 'gt': return value > goal;
+      case 'exists': return !!value;
+      default: return false;
+    }
+  };
+
+  // Create a map of entries by date for quick lookup
+  const entryByDate = Object.fromEntries(
+    entries.map(e => [dayjs(e.date).format('YYYY-MM-DD'), e])
+  );
+
+  // Get calendar data
+  const daysInMonth = currentMonth.daysInMonth();
+  const startDay = currentMonth.startOf('month').day();
+  const today = dayjs().format('YYYY-MM-DD');
+  
+  // Adjust start day to make Monday first day (0 = Monday, 6 = Sunday)
   const adjustedStartDay = startDay === 0 ? 6 : startDay - 1;
   
-  const allDays = Array.from({ length: adjustedStartDay + daysInMonth }, (_, i) => {
-    const dayOffset = i - adjustedStartDay;
-    return dayOffset >= 0 ? month.date(dayOffset + 1) : null;
+  // Generate array of days including empty slots for proper alignment
+  const calendarDays = Array.from({ length: adjustedStartDay + daysInMonth }, (_, i) => {
+    if (i < adjustedStartDay) return null;
+    const dayNumber = i - adjustedStartDay + 1;
+    const date = currentMonth.date(dayNumber);
+    return date;
   });
 
-  const handleDayClick = (dateObj) => {
-    const key = dateObj.format('YYYY-MM-DD');
-    const entry = entryByDate[key];
-    if (entry) {
-      setForm(entry);
-      setEditingIndex(entries.findIndex(e => e.date === entry.date));
-    } else {
-      setForm({
-        date: key,
-        weight: '',
-        intake: 0,
-        protein: 0,
-        steps: 0,
-        cardio: '',
-        exercise1: '',
-        exercise2: '',
-        notes: '',
-        deficit: 0,
-      });
-      setEditingIndex(-1);
-    }
-    window.scrollTo({ top: 200, behavior: 'smooth' });
-  };
-
+  // Get goal progress for an entry
   const getGoalProgress = (entry) => {
-    if (!entry) return { score: 0, goals: [] };
+    if (!entry) return { score: 0, goals: [], status: '' };
     
     const goalChecks = [
-      { met: entry.intake <= goals.goalIntake, label: 'Calories', icon: '🍽️' },
-      { met: entry.protein >= goals.goalProtein, label: 'Protein', icon: '💪' },
-      { met: entry.steps >= goals.goalSteps, label: 'Steps', icon: '🚶' },
-      { met: entry.cardio > 0, label: 'Cardio', icon: '❤️' },
-      { met: entry.exercise2 !== '', label: 'Strength', icon: '🏋️' }
+      entry.intake <= goals.goalIntake,
+      entry.protein >= goals.goalProtein,
+      entry.steps >= goals.goalSteps,
+      entry.cardio > 0,
+      entry.exercise1 || entry.exercise2
     ];
     
-    const score = goalChecks.filter(g => g.met).length;
-    return { score, goals: goalChecks };
+    const score = goalChecks.filter(Boolean).length;
+    
+    // Determine status based on selected metric
+    const metric = metrics.find(m => m.id === selectedMetric);
+    const metricValue = entry[metric.key];
+    const metricGoal = metric.goal ? goals[metric.goal] || metric.goal : metric.goal;
+    const metricMet = compareValue(metricValue, metricGoal, metric.compare);
+    
+    const status = metricMet ? 'green' : 'red';
+    
+    return { score, status };
   };
 
-  const getScoreClass = (score) => {
-    if (score >= 4) return 'excellent';
-    if (score >= 3) return 'good';
-    if (score >= 2) return 'fair';
-    return 'poor';
+  // Handle day click
+  const handleDayClick = (date) => {
+    if (!date) return;
+    
+    const dateStr = date.format('YYYY-MM-DD');
+    const entry = entryByDate[dateStr];
+    
+    if (entry) {
+      const index = entries.findIndex(e => e.date === dateStr);
+      onEdit(index);
+    } else {
+      onEdit(-1); // New entry
+    }
   };
+
+  // Navigation handlers
+  const goToPreviousMonth = () => setCurrentMonth(currentMonth.subtract(1, 'month'));
+  const goToNextMonth = () => setCurrentMonth(currentMonth.add(1, 'month'));
+  const goToToday = () => setCurrentMonth(dayjs().startOf('month'));
 
   return (
     <div className="calendar-container">
-      {/* Header */}
-      <div className="calendar-header">
-        <h2 className="calendar-title">
-          {month.format('MMMM YYYY')}
-        </h2>
-        
-        {/* Navigation Controls */}
-        <div className="calendar-navigation">
-          <button 
-            onClick={() => setMonth(month.subtract(1, 'month'))}
-            className="nav-button"
-          >
-            ← Previous
+      <div className="calendar">
+        {/* Calendar Header */}
+        <div className="calendar-header">
+          <button className="month-nav-btn" onClick={goToPreviousMonth}>
+            ←
           </button>
-          
-          <button 
-            onClick={() => setMonth(dayjs().startOf('month'))}
-            className="today-button"
-          >
-            Today
-          </button>
-          
-          <button 
-            onClick={() => setMonth(month.add(1, 'month'))}
-            className="nav-button"
-          >
-            Next →
+          <div className="current-month">
+            <span className="month-year">{currentMonth.format('MMMM YYYY')}</span>
+            <div className="header-controls">
+              <select
+                className="metric-select"
+                value={selectedMetric}
+                onChange={(e) => setSelectedMetric(e.target.value)}
+              >
+                {metrics.map(metric => (
+                  <option key={metric.id} value={metric.id}>
+                    {metric.label}
+                  </option>
+                ))}
+              </select>
+              <button className="today-btn" onClick={goToToday}>Today</button>
+            </div>
+          </div>
+          <button className="month-nav-btn" onClick={goToNextMonth}>
+            →
           </button>
         </div>
 
-        {/* View Toggle */}
-        <button 
-          onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-          className="view-toggle-button"
-        >
-          {viewMode === 'grid' ? '📋 Switch to List View' : '📅 Switch to Grid View'}
-        </button>
-      </div>
-
-      {viewMode === 'grid' ? (
-        <div className="calendar-grid-container">
-          {/* Day Labels */}
-          <div className="day-labels">
-            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
-              <div key={day} className="day-label">
-                {day.slice(0, 3)}
-              </div>
+        {/* Calendar Body */}
+        <div className="calendar-body">
+          {/* Weekday Labels */}
+          <div className="weekday-labels">
+            {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+              <div key={day} className="weekday-label">{day}</div>
             ))}
           </div>
 
-          {/* Calendar Days */}
-          <div className="calendar-grid">
-            {allDays.map((date, idx) => {
+          {/* Days Grid */}
+          <div className="days-grid">
+            {calendarDays.map((date, index) => {
               if (!date) {
-                return <div key={idx} className="calendar-day empty"></div>;
+                return <div key={`empty-${index}`} className="calendar-day empty" />;
               }
 
-              const formatted = date.format('YYYY-MM-DD');
-              const entry = entryByDate[formatted];
-              const isToday = formatted === today;
-              const { score, goals: goalChecks } = getGoalProgress(entry);
-              const isBadDay = entry && entry.deficit > 0;
-              const scoreClass = getScoreClass(score);
-
-              const dayClasses = [
-                'calendar-day',
-                entry ? 'has-entry' : 'no-entry',
-                entry ? `score-${scoreClass}` : '',
-                isToday ? 'today' : '',
-                isBadDay ? 'bad-day' : ''
-              ].filter(Boolean).join(' ');
+              const dateStr = date.format('YYYY-MM-DD');
+              const entry = entryByDate[dateStr];
+              const isToday = dateStr === today;
+              const { score, status } = getGoalProgress(entry);
+              const metric = metrics.find(m => m.id === selectedMetric);
+              const metricValue = entry ? entry[metric.key] : null;
 
               return (
                 <div
-                  key={formatted}
+                  key={dateStr}
+                  className={`calendar-day ${entry ? 'has-entry' : ''} ${isToday ? 'today' : ''} ${entry ? status : ''}`}
                   onClick={() => handleDayClick(date)}
-                  className={dayClasses}
                 >
-                  {/* Day Number */}
-                  <div className={`day-number ${isToday ? 'today' : ''}`}>
-                    {date.date()}
-                  </div>
-
-                  {/* Entry Preview */}
-                  {entry && (
-                    <div className="entry-preview">
-                      {/* Quick Stats */}
-                      <div className="entry-stats">
-                        <div className="entry-stat">
-                          <span>🍽️</span>
-                          <span className="entry-stat-value">{entry.intake}</span>
-                        </div>
-                        <div className="entry-stat">
-                          <span>⚖️</span>
-                          <span className="entry-stat-value">{entry.weight}kg</span>
-                        </div>
-                      </div>
-
-                      {/* Goal Progress Indicators */}
-                      <div className="goal-indicators">
-                        {goalChecks.slice(0, 3).map((goal, i) => (
-                          <span 
-                            key={i}
-                            className={`goal-indicator ${goal.met ? 'met' : 'not-met'}`}
-                            title={goal.label}
-                          >
-                            {goal.icon}
+                  <div className="day-content">
+                    <span className="day-number">{date.date()}</span>
+                    
+                    {entry ? (
+                      <div className="day-entry">
+                        <div className="entry-stats">
+                          <span className="metric-value">
+                            {metricValue || '–'}
                           </span>
-                        ))}
+                        </div>
+                        <div className="goal-stars">
+                          {'⭐'.repeat(score)}
+                        </div>
                       </div>
-
-                      {/* Score Badge */}
-                      <div className={`score-badge ${scoreClass}`}>
-                        {score}/5 ⭐
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Empty Day Indicator */}
-                  {!entry && (
-                    <div className="empty-day-message">
-                      Click to add
-                    </div>
-                  )}
+                    ) : (
+                      <div className="day-empty">+</div>
+                    )}
+                  </div>
                 </div>
               );
             })}
           </div>
         </div>
-      ) : (
-        <div className="list-view">
-          {entries
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .map((entry) => {
-              const { score, goals: goalChecks } = getGoalProgress(entry);
-              const isBadDay = entry.deficit > 0;
-              const entryDate = dayjs(entry.date);
-              const scoreClass = getScoreClass(score);
 
-              const entryClasses = [
-                'list-entry',
-                `score-${scoreClass}`,
-                isBadDay ? 'bad-day' : ''
-              ].filter(Boolean).join(' ');
-
-              return (
-                <div
-                  key={entry.date}
-                  onClick={() => handleDayClick(entryDate)}
-                  className={entryClasses}
-                >
-                  <div className="list-entry-header">
-                    <div>
-                      <h3 className="list-entry-title">
-                        {entryDate.format('dddd, MMMM D')}
-                      </h3>
-                      <p className="list-entry-date">{entry.date}</p>
-                    </div>
-                    <div className={`list-entry-score ${scoreClass}`}>
-                      {score}/5 ⭐
-                    </div>
-                  </div>
-
-                  {/* Stats Grid */}
-                  <div className="stats-grid">
-                    <div className="stat-item">
-                      <div className="stat-icon">🍽️</div>
-                      <div className="stat-value">{entry.intake}</div>
-                      <div className="stat-label">Calories</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-icon">⚖️</div>
-                      <div className="stat-value">{entry.weight}kg</div>
-                      <div className="stat-label">Weight</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-icon">💪</div>
-                      <div className="stat-value">{entry.protein}g</div>
-                      <div className="stat-label">Protein</div>
-                    </div>
-                    <div className="stat-item">
-                      <div className="stat-icon">🚶</div>
-                      <div className="stat-value">{entry.steps}</div>
-                      <div className="stat-label">Steps</div>
-                    </div>
-                  </div>
-
-                  {/* Goal Progress */}
-                  <div className="goal-badges">
-                    {goalChecks.map((goal, i) => (
-                      <span 
-                        key={i}
-                        className={`goal-badge ${goal.met ? 'met' : 'not-met'}`}
-                      >
-                        <span>{goal.icon}</span>
-                        <span>{goal.label}</span>
-                        {goal.met && <span>✓</span>}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Deficit Warning */}
-                  {isBadDay && (
-                    <div className="deficit-warning">
-                      <div className="deficit-warning-content">
-                        <span>⚠️</span>
-                        <span className="deficit-warning-text">
-                          Calorie surplus: +{entry.deficit} kcal
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-
-          {entries.length === 0 && (
-            <div className="empty-state">
-              <div className="empty-state-icon">📅</div>
-              <h3 className="empty-state-title">No entries yet</h3>
-              <p className="empty-state-text">Start tracking your fitness journey!</p>
-            </div>
-          )}
+        <div className="calendar-footer">
+          <div 
+            className="color-guide-link"
+            onMouseEnter={() => setShowTooltip(true)}
+            onMouseLeave={() => setShowTooltip(false)}
+            ref={tooltipRef}
+          >
+            What do the colors mean?
+            {showTooltip && (
+              <div className="tooltip">
+                <div>🟩 Green: {metrics.find(m => m.id === selectedMetric)?.label} target met</div>
+                <div>🟥 Red: {metrics.find(m => m.id === selectedMetric)?.label} target not met</div>
+                <div>⭐ Stars show total goals met that day</div>
+              </div>
+            )}
+          </div>
         </div>
-      )}
+      </div>
+
+      <ConsistencyMetrics 
+        entries={entries} 
+        goals={goals}
+        currentMonth={currentMonth}
+        selectedMetric={selectedMetric}
+        metrics={metrics}
+      />
     </div>
   );
 };

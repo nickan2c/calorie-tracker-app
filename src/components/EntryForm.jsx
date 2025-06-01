@@ -6,12 +6,18 @@ const EntryForm = ({
   form,
   handleChange,
   handleSubmit,
+  handleDelete,
   cancelEdit,
   editingIndex,
   warning,
   formErrors,
   mostRecentEntry
 }) => {
+  const onDelete = (e) => {
+    e.preventDefault();
+    handleDelete();
+  };
+
   return (
     <form onSubmit={handleSubmit} className="form-grid entry-form">
       {warning && <div className="warning">{warning}</div>}
@@ -31,11 +37,12 @@ const EntryForm = ({
       <div className="button-group">
         {editingIndex >= 0 ? (
           <>
-            <button type="submit" className="update-button">Update</button>
+            <button type="submit" className="update-button">Update Entry</button>
+            <button type="button" className="delete-button" onClick={onDelete}>Delete Entry</button>
             <button type="button" className="cancel-button" onClick={cancelEdit}>Cancel</button>
           </>
         ) : (
-          <button type="submit">Add Entry</button>
+          <button type="submit" className="add-button">Add Entry</button>
         )}
       </div>
     </form>

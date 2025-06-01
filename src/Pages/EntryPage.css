@@ -1,121 +1,178 @@
 /* EntryPage.css */
 
 .container {
-  padding: 1rem;
-  max-width: 600px;
-  
-  width: 100%;
-  overflow-x: hidden; /* Hides overflow but keeps layout clean */
-
+  max-width: 1200px;
   margin: 0 auto;
-  background-color: #ffffff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
+  padding: 20px;
+  min-height: 100vh;
 }
 
-h1 {
-  font-size: 1.6rem;
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-p {
-  font-size: 0.95rem;
-  line-height: 1.4;
-  margin-bottom: 0.5rem;
-  text-align: center;
-}
-
-.warning {
-  color: #d9534f;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 1rem;
-}
-
-/* Form and button layout */
-.view-toggle {
+.page-header {
   display: flex;
-  justify-content: center;
-  margin: 1rem 0;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.page-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: #1f2937;
+}
+
+.add-entry-button {
+  background: linear-gradient(135deg, #22c55e, #10b981);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.add-entry-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);
+}
+
+.add-entry-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+}
+
+.stats-summary {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stats-summary p {
+  margin: 8px 0;
+  color: #4b5563;
+}
+
+.stats-summary strong {
+  color: #1f2937;
+}
+
+.view-toggle {
+  margin-bottom: 24px;
+  text-align: right;
 }
 
 .view-toggle button {
-  background-color: #007bff;
-  color: #fff;
-  padding: 10px 16px;
-  font-size: 0.95rem;
-  border: none;
-  border-radius: 5px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: #4b5563;
   cursor: pointer;
-  width: 90%;
-  max-width: 300px;
+  transition: all 0.2s;
 }
 
 .view-toggle button:hover {
-  background-color: #0056b3;
+  background: #f9fafb;
+  border-color: #d1d5db;
 }
 
-a {
-  display: block;
-  margin: 2rem auto 1rem;
-  text-align: center;
+.charts-link {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 12px 24px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  color: #4b5563;
   text-decoration: none;
-  color: #007bff;
-  font-weight: 600;
+  transition: all 0.2s;
 }
 
-/* Responsive Enhancements */
-@media (max-width: 600px) {
+.charts-link:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.warning {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+/* Mobile Optimization */
+@media (max-width: 640px) {
   .container {
-    padding: 0.75rem;
+    padding: 16px;
   }
 
-  p {
-    font-size: 0.9rem;
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+
+  .add-entry-button {
+    width: 100%;
+  }
+
+  .stats-summary {
+    padding: 16px;
+    text-align: center;
+  }
+
+  .view-toggle {
+    text-align: center;
   }
 
   .view-toggle button {
     width: 100%;
-    font-size: 1rem;
   }
 
-  a {
-    font-size: 1rem;
+  .charts-link {
+    display: block;
+    text-align: center;
   }
 }
 
-  .view-toggle {
-    display: flex;
-    justify-content: center;
-  }
+.view-toggle {
+  display: flex;
+  justify-content: center;
+}
+
+.view-toggle button {
+  background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 6px rgba(66, 153, 225, 0.3);
+}
+
+.toggle-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(66, 153, 225, 0.4);
+}
+
+.toggle-btn:active {
+  transform: translateY(0);
+}
+
+.toggle-icon {
+  font-size: 1.2rem;
+}
   
-  .view-toggle button {
-    background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 6px rgba(66, 153, 225, 0.3);
-  }
-  
-  .toggle-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(66, 153, 225, 0.4);
-  }
-  
-  .toggle-btn:active {
-    transform: translateY(0);
-  }
-  
-  .toggle-icon {
-    font-size: 1.2rem;
-  }
   
