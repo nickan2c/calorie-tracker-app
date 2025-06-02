@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import EntriesTable from '../components/EntriesTable';
+import EntriesTable from '../components/forms/EntriesTable';
+import ListView from '../components/calendar/ListView';
 import '../App.css';
-import './EntryPage.css';
+import '../styles/components/EntryPage.css';
 import { db } from '../firebaseConfig/firebaseConfig';
 import { doc, setDoc, deleteDoc, collection } from 'firebase/firestore';
-import CalendarGrid from '../components/CalendarGrid';
-import EntryModal from '../components/EntryModal';
-import SettingsSummary from '../components/SettingsSummary';
+import CalendarGrid from '../components/calendar/CalendarGrid';
+import EntryModal from '../components/forms/EntryModal';
+import SettingsSummary from '../components/common/SettingsSummary';
 import { calculateDeficit } from '../helper';
 import { useAuth } from '../context/AuthContext';
 
@@ -42,6 +43,7 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedMetric, setSelectedMetric] = useState('calories');
 
   const getMostRecentEntry = () => {
     const sortedEntries = [...entries].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -117,7 +119,7 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
   
     try {
       // Save entry in user's subcollection
-      const userEntriesRef = collection(db, "users", currentUser.uid, "entries");
+      const userEntriesRef = collection(db, "users", currentUser.uid, "healthData");
       await setDoc(doc(userEntriesRef, docId), final);
       await fetchEntries();
       setIsModalOpen(false);
@@ -144,7 +146,7 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
 
     try {
       // Delete from user's subcollection
-      const userEntryRef = doc(db, "users", currentUser.uid, "entries", form.date);
+      const userEntryRef = doc(db, "users", currentUser.uid, "healthData", form.date);
       await deleteDoc(userEntryRef);
       await fetchEntries();
       setIsModalOpen(false);
@@ -238,27 +240,26 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
       </div>
 
       {viewMode === 'list' ? (
-        <EntriesTable
+        <ListView
           entries={entries}
           onEdit={handleEdit}
-          editingIndex={editingIndex}
-          refreshEntries={fetchEntries}
+          goals={{
+            goalIntake,
+            goalProtein,
+            goalSteps
+          }}
         />
       ) : (
         <CalendarGrid
           entries={entries}
           onEdit={handleEdit}
-          editingIndex={editingIndex}
-          setEditingIndex={setEditingIndex}
-          fetchEntries={fetchEntries}
-          tdee={tdee}
-          goalIntake={goalIntake}
           goals={{
             goalIntake,
-            goalProtein, 
+            goalProtein,
             goalSteps
           }}
-          setForm={setForm}
+          selectedMetric={selectedMetric}
+          setSelectedMetric={setSelectedMetric}
         />
       )}
 

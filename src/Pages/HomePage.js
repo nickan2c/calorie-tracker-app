@@ -53,7 +53,7 @@ export default function HomePage({ entries, weightLossGoalPerWeek }) {
             <div className="today-metrics">
               <div className="metric">
                 <span className="metric-label">Calories</span>
-                <span className="metric-value">{todayEntry.intake || 0}</span>
+                <span className="metric-value">{Math.round(todayEntry.intake || 0)}</span>
                 <span className="metric-unit">kcal</span>
               </div>
               <div className="metric">
@@ -63,7 +63,7 @@ export default function HomePage({ entries, weightLossGoalPerWeek }) {
               </div>
               <div className="metric">
                 <span className="metric-label">Deficit</span>
-                <span className="metric-value">{todayEntry.deficit || 0}</span>
+                <span className="metric-value">{Math.round(todayEntry.deficit || 0)}</span>
                 <span className="metric-unit">kcal</span>
               </div>
               <Link to="/entry" className="update-btn">Update Entry</Link>

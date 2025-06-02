@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import '../style/SettingsPage.css';
+import '../styles/pages/SettingsPage.css';
 import { Link } from "react-router-dom";
 import { db } from '../firebaseConfig/firebaseConfig';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
@@ -332,7 +332,7 @@ function SettingsPage({
 
         {/* Message Notification */}
         {message && (
-          <div className="message-notification">
+          <div className={`message ${message.includes('❌') ? 'error' : 'success'}`}>
             {message}
           </div>
         )}

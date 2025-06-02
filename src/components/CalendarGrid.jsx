@@ -6,11 +6,12 @@ import ConsistencyMetrics from './ConsistencyMetrics';
 const CalendarGrid = ({
   entries,
   onEdit,
-  goals
+  goals,
+  selectedMetric = 'calories',
+  setSelectedMetric
 }) => {
   const [currentMonth, setCurrentMonth] = useState(dayjs().startOf('month'));
   const [showTooltip, setShowTooltip] = useState(false);
-  const [selectedMetric, setSelectedMetric] = useState('calories');
   const tooltipRef = useRef(null);
   
   const metrics = [
@@ -20,7 +21,8 @@ const CalendarGrid = ({
     { id: 'weight', label: 'Weight', key: 'weight' },
     { id: 'cardio', label: 'Cardio', key: 'cardio', goal: 0, compare: 'gt' },
     { id: 'exercise1', label: 'Exercise 1', key: 'exercise1', goal: false, compare: 'exists' },
-    { id: 'exercise2', label: 'Exercise 2', key: 'exercise2', goal: false, compare: 'exists' }
+    { id: 'exercise2', label: 'Exercise 2', key: 'exercise2', goal: false, compare: 'exists' },
+    { id: 'goals', label: 'Goals Met', key: 'goals' }
   ];
 
   const compareValue = (value, goal, compare) => {
@@ -36,7 +38,7 @@ const CalendarGrid = ({
 
   // Create a map of entries by date for quick lookup
   const entryByDate = Object.fromEntries(
-    entries.map(e => [dayjs(e.date).format('YYYY-MM-DD'), e])
+    entries.map(e => [dayjs(e.id).format('YYYY-MM-DD'), e])
   );
 
   // Get calendar data
@@ -55,29 +57,21 @@ const CalendarGrid = ({
     return date;
   });
 
-  // Get goal progress for an entry
-  const getGoalProgress = (entry) => {
-    if (!entry) return { score: 0, goals: [], status: '' };
+  const getGoalStatus = (entry) => {
+    if (!entry) return { score: 0, status: '' };
     
-    const goalChecks = [
-      entry.intake <= goals.goalIntake,
-      entry.protein >= goals.goalProtein,
-      entry.steps >= goals.goalSteps,
-      entry.cardio > 0,
-      entry.exercise1 || entry.exercise2
+    const checks = [
+      { met: entry.intake <= goals.goalIntake, label: 'Calories' },
+      { met: entry.protein >= goals.goalProtein, label: 'Protein' },
+      { met: entry.steps >= goals.goalSteps, label: 'Steps' },
+      { met: entry.cardio > 0, label: 'Cardio' },
+      { met: entry.exercise1 || entry.exercise2, label: 'Exercise' }
     ];
     
-    const score = goalChecks.filter(Boolean).length;
-    
-    // Determine status based on selected metric
-    const metric = metrics.find(m => m.id === selectedMetric);
-    const metricValue = entry[metric.key];
-    const metricGoal = metric.goal ? goals[metric.goal] || metric.goal : metric.goal;
-    const metricMet = compareValue(metricValue, metricGoal, metric.compare);
-    
-    const status = metricMet ? 'green' : 'red';
-    
-    return { score, status };
+    return {
+      score: checks.filter(c => c.met).length,
+      status: entry.intake <= goals.goalIntake ? 'green' : 'red'
+    };
   };
 
   // Handle day click
@@ -149,32 +143,49 @@ const CalendarGrid = ({
               const dateStr = date.format('YYYY-MM-DD');
               const entry = entryByDate[dateStr];
               const isToday = dateStr === today;
-              const { score, status } = getGoalProgress(entry);
+              const { score, status } = getGoalStatus(entry);
               const metric = metrics.find(m => m.id === selectedMetric);
-              const metricValue = entry ? entry[metric.key] : null;
+              let metricValue = entry ? entry[metric.key] : null;
+              
+              // Special handling for goals metric
+              if (metric.id === 'goals' && entry) {
+                metricValue = score;
+              }
+
+              // Determine status color based on metric
+              let statusColor = '';
+              if (entry) {
+                if (metric.id === 'goals') {
+                  statusColor = score >= 4 ? 'green' : 'red';
+                } else {
+                  statusColor = status;
+                }
+              }
 
               return (
                 <div
                   key={dateStr}
-                  className={`calendar-day ${entry ? 'has-entry' : ''} ${isToday ? 'today' : ''} ${entry ? status : ''}`}
+                  className={`calendar-day ${entry ? 'has-entry' : ''} ${isToday ? 'today' : ''} ${entry ? statusColor : ''}`}
                   onClick={() => handleDayClick(date)}
                 >
                   <div className="day-content">
-                    <span className="day-number">{date.date()}</span>
+                    <div className="day-header">
+                      <span className="day-number">{date.date()}</span>
+                    </div>
                     
-                    {entry ? (
+                    {entry && (
                       <div className="day-entry">
                         <div className="entry-stats">
                           <span className="metric-value">
-                            {metricValue || '–'}
+                            {metric.id === 'goals' ? 
+                              metricValue ? `${metricValue}⭐` : '–' :
+                              selectedMetric === 'calories' || selectedMetric === 'cardio' || selectedMetric === 'protein'
+                                ? metricValue ? Math.round(metricValue) : '–'
+                                : metricValue || '–'
+                            }
                           </span>
                         </div>
-                        <div className="goal-stars">
-                          {'⭐'.repeat(score)}
-                        </div>
                       </div>
-                    ) : (
-                      <div className="day-empty">+</div>
                     )}
                   </div>
                 </div>

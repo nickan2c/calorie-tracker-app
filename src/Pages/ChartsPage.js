@@ -5,9 +5,9 @@ import {
   subDays, addDays, startOfDay, endOfDay, isWithinInterval,
   subMonths, startOfMonth
 } from 'date-fns';
-import MetricChart from '../components/MetricChart';
-import WeeklyDeficitProgress from '../components/WeeklyDeficitProgress';
-import '../style/ChartsPage.css';
+import MetricChart from '../components/metrics/MetricChart';
+import WeeklyDeficitProgress from '../components/metrics/WeeklyDeficitProgress';
+import '../styles/pages/ChartsPage.css';
 
 // TODO fix buggy charts - not accurate I think. Check this.
 function groupEntriesByWeek(entries) {
@@ -40,15 +40,19 @@ function groupEntriesByWeek(entries) {
     week.count += 1;
   });
 
-  return Object.values(weeklyMap).map((week) => ({
-    date: week.date,
-    weight: Math.round(week.weight / week.count * 100) / 100,
-    intake: Math.round(week.intake / week.count),
-    protein: Math.round(week.protein / week.count),
-    steps: Math.round(week.steps / week.count), 
-    cardio: Math.round(week.cardio / week.count),
-    deficit: Math.round(week.deficit / week.count),
-  }));
+  const weeks = Object.values(weeklyMap);
+
+  // Calculate averages
+  weeks.forEach(week => {
+    week.weight = Math.round((week.weight / week.count) * 10) / 10; // Keep one decimal for weight
+    week.intake = Math.round(week.intake / week.count);
+    week.steps = Math.round(week.steps / week.count);
+    week.cardio = Math.round(week.cardio / week.count);
+    week.deficit = Math.round(week.deficit / week.count);
+    week.protein = Math.round(week.protein / week.count);
+  });
+
+  return weeks;
 }
 
 
