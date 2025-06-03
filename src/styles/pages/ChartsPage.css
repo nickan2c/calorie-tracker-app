@@ -922,3 +922,36 @@
     margin: 0 0 1.5rem;
     font-size: 1.25rem;
   }
+
+  /* Remove Fat Cell Progress styles */
+  .weekly-progress-section,
+  .section-title,
+  .toggle-button,
+  .toggle-button:hover,
+  .weekly-deficit-card,
+  .deficit-card-header,
+  .deficit-card-title,
+  .deficit-card-date,
+  .deficit-card-stats,
+  .deficit-card-total,
+  .deficit-card-potential,
+  .progress-bar-container,
+  .progress-bar,
+  .progress-bar-text,
+  .progress-labels,
+  .fat-cell-container,
+  .fat-cell,
+  .fat-cell-emoji,
+  .fat-cell-message,
+  .fat-cell-title,
+  .fat-cell-subtitle,
+  .week-navigation,
+  .nav-arrow,
+  .nav-arrow:hover:not(.disabled),
+  .nav-arrow.disabled,
+  .date-range,
+  .date-range h2,
+  .current-week-btn,
+  .current-week-btn:hover {
+    /* These styles have been moved to WeeklyDeficitProgress.css */
+  }

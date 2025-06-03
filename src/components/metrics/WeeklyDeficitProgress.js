@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
 import {
   startOfWeek, addDays, startOfDay, endOfDay,
-  isWithinInterval, parseISO, format, subWeeks, addWeeks
+  isWithinInterval, parseISO, format, subWeeks, addWeeks, formatISO
 } from 'date-fns';
+import '../../styles/metrics/WeeklyDeficitProgress.css';
+import MetricChart from './MetricChart';
 
 const CALORIES_PER_KG = 7700;
+const DEFAULT_WEEKS_TO_SHOW = 8;
+
+const TIME_RANGE_OPTIONS = [
+  { value: 4, label: 'Last 4 Weeks' },
+  { value: 8, label: 'Last 8 Weeks' },
+  { value: 12, label: 'Last 12 Weeks' },
+  { value: 26, label: 'Last 6 Months' },
+  { value: 52, label: 'Last Year' }
+];
 
 // Filter entries to only include those in the specified week
 function getEntriesForWeek(weekStart, weekEnd, entries) {
@@ -12,22 +23,48 @@ function getEntriesForWeek(weekStart, weekEnd, entries) {
     const entryDate = parseISO(entry.date);
     return isWithinInterval(entryDate, { start: startOfDay(weekStart), end: endOfDay(weekEnd) });
   });
+}
 
+// Calculate weekly deficits for the last N weeks
+function getWeeklyDeficits(entries, numWeeks = DEFAULT_WEEKS_TO_SHOW) {
+  const weeklyData = [];
+  let currentDate = new Date();
+
+  for (let i = 0; i < numWeeks; i++) {
+    const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+    const weekEnd = addDays(weekStart, 6);
+    const weekEntries = getEntriesForWeek(weekStart, weekEnd, entries);
+    
+    // Changed back to original: negative means surplus (bad), positive means deficit (good)
+    const totalDeficit = weekEntries.reduce((sum, { deficit = 0 }) => sum + deficit, 0);
+    
+    weeklyData.unshift({
+      date: formatISO(weekStart).split('T')[0], // Format as YYYY-MM-DD
+      deficit: totalDeficit,
+      formattedDate: `Week of ${format(weekStart, 'MMM d')}`
+    });
+
+    currentDate = subWeeks(currentDate, 1);
+  }
+
+  return weeklyData;
 }
 
 function WeeklyDeficitProgress({ sortedEntries, weightLossGoalPerWeek }) {
   const [currentWeekDate, setCurrentWeekDate] = useState(new Date());
   const [showWeeklyProgress, setShowWeeklyProgress] = useState(true);
+  const [showDeficitChart, setShowDeficitChart] = useState(false);
+  const [chartTimeRange, setChartTimeRange] = useState(DEFAULT_WEEKS_TO_SHOW);
 
   const weekStart = startOfWeek(currentWeekDate, { weekStartsOn: 1 });
   const weekEnd = addDays(weekStart, 6);
   const weekDateRangeText = `${format(weekStart, 'EE, MMM d')} - ${format(weekEnd, 'EE, MMM d, yyyy')}`;
 
   const currentWeekEntries = getEntriesForWeek(weekStart, weekEnd, sortedEntries);
-  const caloriesForGoal = CALORIES_PER_KG * weightLossGoalPerWeek; // e.g 7700 for 1kg weight loss goal
+  const caloriesForGoal = CALORIES_PER_KG * weightLossGoalPerWeek;
 
+  // Changed back to original: negative means surplus (bad), positive means deficit (good)
   const totalDeficitOrSurplus = currentWeekEntries.reduce((sum, { deficit = 0 }) => sum - deficit, 0);
-
   const totalDeficit = Math.abs(totalDeficitOrSurplus);
   const inDeficit = totalDeficitOrSurplus > 0;
   const percentTowardGoal = inDeficit ? Math.min(100, (totalDeficit / caloriesForGoal) * 100) : 0;
@@ -53,14 +90,17 @@ function WeeklyDeficitProgress({ sortedEntries, weightLossGoalPerWeek }) {
   const isCurrentWeek = format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'yyyy-MM-dd') ===
                         format(weekStart, 'yyyy-MM-dd');
 
+  // Get weekly deficit data for the weekly deficit chart
+  const weeklyDeficitData = getWeeklyDeficits(sortedEntries, chartTimeRange);
+
   return (
     <section className="weekly-progress-section">
-      <h2 className="section-title">
-        <span>Fat Cell Progress</span>
+      <div className="section-title">
+        <h2>Fat Cell Progress</h2>
         <button onClick={() => setShowWeeklyProgress(prev => !prev)} className="toggle-button">
           {showWeeklyProgress ? 'Hide' : 'Show'}
         </button>
-      </h2>
+      </div>
 
       {showWeeklyProgress && (
         <>
@@ -93,7 +133,7 @@ function WeeklyDeficitProgress({ sortedEntries, weightLossGoalPerWeek }) {
                 </div>
                 <div className="deficit-card-stats">
                   <p className="deficit-card-total">
-                    {totalDeficit.toLocaleString()} kcal {inDeficit ? 'deficit' : 'surplus :('}
+                    {Math.abs(totalDeficit).toLocaleString()} kcal {inDeficit ? 'deficit' : 'surplus :('}
                   </p>
                   <p className="deficit-card-potential">
                     {inDeficit
@@ -138,6 +178,42 @@ function WeeklyDeficitProgress({ sortedEntries, weightLossGoalPerWeek }) {
                       : 'Keep going! Every step brings you closer to your goal.'}
                   </p>
                 </div>
+              </div>
+
+              <div className="chart-section">
+                <button 
+                  onClick={() => setShowDeficitChart(prev => !prev)} 
+                  className="toggle-button chart-toggle"
+                >
+                  {showDeficitChart ? 'Hide History Chart' : 'Show History Chart'}
+                </button>
+
+                {showDeficitChart && (
+                  <div className="deficit-chart-container">
+                    <div className="chart-header">
+                      <h3>Weekly Deficit History</h3>
+                      <select
+                        value={chartTimeRange}
+                        onChange={(e) => setChartTimeRange(Number(e.target.value))}
+                        className="time-range-select"
+                      >
+                        {TIME_RANGE_OPTIONS.map(option => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <MetricChart
+                      data={weeklyDeficitData}
+                      dataKey="deficit"
+                      color="#22c55e"
+                      label="Weekly Deficit"
+                      defaultChartType="bar"
+                      goalValue={-caloriesForGoal}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )}

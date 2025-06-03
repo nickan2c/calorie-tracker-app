@@ -103,10 +103,9 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
     const docId = final.date;
     const entryExists = entries.some(entry => entry.date === docId);
   
-    // For new entries, check if we're overwriting
-    if (editingIndex === -1 && entryExists && !confirmOverwrite) {
-      setWarning(`Entry for ${docId} exists. Click again to overwrite.`);
-      setConfirmOverwrite(true);
+    // For new entries, if an entry exists for that date, don't allow overwriting
+    if (editingIndex === -1 && entryExists) {
+      setWarning(`An entry for ${docId} already exists. Please edit the existing entry instead.`);
       return;
     }
 
@@ -121,20 +120,23 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
       // Save entry in user's subcollection
       const userEntriesRef = collection(db, "users", currentUser.uid, "healthData");
       await setDoc(doc(userEntriesRef, docId), final);
-      await fetchEntries();
+      
+      // Reset all state before fetching new entries
+      setForm(EMPTY_FORM);
+      setEditingIndex(-1);
+      setWarning('');
+      setConfirmOverwrite(false);
+      setConfirmUpdate(false);
+      setFormErrors({});
       setIsModalOpen(false);
+      
+      // Fetch updated entries
+      await fetchEntries();
     } catch (error) {
       console.error("Error saving entry:", error);
       setWarning("Error saving entry. Please try again.");
       return;
     }
-  
-    setForm(EMPTY_FORM);
-    setEditingIndex(-1);
-    setWarning('');
-    setConfirmOverwrite(false);
-    setConfirmUpdate(false);
-    setFormErrors({});
   };
 
   const handleDelete = async () => {

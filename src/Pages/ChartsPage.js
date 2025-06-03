@@ -27,11 +27,16 @@ function groupEntriesByWeek(entries) {
         cardio: 0,
         deficit: 0,
         count: 0,
+        weightCount: 0, // Add separate counter for weight entries
       };
     }
 
     const week = weeklyMap[weekStart];
-    week.weight += Number(entry.weight) || 0;
+    // Only add weight if it's non-zero and increment weight counter
+    if (entry.weight) {
+      week.weight += Number(entry.weight);
+      week.weightCount += 1;
+    }
     week.intake += Number(entry.intake) || 0;
     week.protein += Number(entry.protein) || 0;
     week.steps += Number(entry.steps) || 0;
@@ -44,12 +49,14 @@ function groupEntriesByWeek(entries) {
 
   // Calculate averages
   weeks.forEach(week => {
-    week.weight = Math.round((week.weight / week.count) * 10) / 10; // Keep one decimal for weight
+    // Only calculate weight average if we have weight entries
+    week.weight = week.weightCount > 0 ? Math.round((week.weight / week.weightCount) * 10) / 10 : null;
     week.intake = Math.round(week.intake / week.count);
     week.steps = Math.round(week.steps / week.count);
     week.cardio = Math.round(week.cardio / week.count);
     week.deficit = Math.round(week.deficit / week.count);
     week.protein = Math.round(week.protein / week.count);
+    delete week.weightCount; // Remove the helper counter
   });
 
   return weeks;
@@ -59,19 +66,6 @@ function groupEntriesByWeek(entries) {
 // Get entries for a range of days from reference date
 function getEntriesForDateRange(entries, referenceDate, days) {
   const startDate = subDays(referenceDate, days - 1); // to include reference date
-
-  return entries.filter(entry => {
-    const entryDate = parseISO(entry.date);
-    return isWithinInterval(entryDate, {
-      start: startOfDay(startDate),
-      end: endOfDay(referenceDate)
-    });
-  });
-}
-
-// Get entries for a range of months from reference date
-function getEntriesForMonthRange(entries, referenceDate, months) {
-  const startDate = subMonths(startOfMonth(referenceDate), months - 1);
 
   return entries.filter(entry => {
     const entryDate = parseISO(entry.date);

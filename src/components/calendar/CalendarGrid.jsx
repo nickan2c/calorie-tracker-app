@@ -38,7 +38,7 @@ const CalendarGrid = ({
 
   // Create a map of entries by date for quick lookup
   const entryByDate = Object.fromEntries(
-    entries.map(e => [dayjs(e.id).format('YYYY-MM-DD'), e])
+    entries.map(e => [e.date, e])
   );
 
   // Get calendar data
