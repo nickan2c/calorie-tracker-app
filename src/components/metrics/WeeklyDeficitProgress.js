@@ -50,7 +50,7 @@ function getWeeklyDeficits(entries, numWeeks = DEFAULT_WEEKS_TO_SHOW) {
   return weeklyData;
 }
 
-function WeeklyDeficitProgress({ sortedEntries, weightLossGoalPerWeek }) {
+function WeeklyDeficitProgress({ sortedEntries, weightLossGoalPerWeek, goalIntake }) {
   const [currentWeekDate, setCurrentWeekDate] = useState(new Date());
   const [showWeeklyProgress, setShowWeeklyProgress] = useState(true);
   const [showDeficitChart, setShowDeficitChart] = useState(false);
@@ -141,6 +141,21 @@ function WeeklyDeficitProgress({ sortedEntries, weightLossGoalPerWeek }) {
                       : `Estimated fat gain: ${Math.abs(totalDeficit / CALORIES_PER_KG).toFixed(2)}kg`}
                   </p>
                 </div>
+              </div>
+
+              <div className="weekly-summary">
+                <p className="summary-item">
+                  <span>Weekly Calorie Goal:</span>
+                  <span>{(goalIntake * 7).toLocaleString()} kcal</span>
+                </p>
+                <p className="summary-item">
+                  <span>Calories Logged:</span>
+                  <span>{currentWeekEntries.reduce((sum, entry) => sum + (entry.intake || 0), 0).toLocaleString()} kcal</span>
+                </p>
+                <p className="summary-item">
+                  <span>Burned through Cardio:</span>
+                  <span>{currentWeekEntries.reduce((sum, entry) => sum + (entry.cardio || 0), 0).toLocaleString()} kcal</span>
+                </p>
               </div>
 
               <div className="progress-bar-container">

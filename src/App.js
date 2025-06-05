@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { HashRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { HashRouter as Router, Route, Routes, Navigate, Link } from "react-router-dom";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "./firebaseConfig/firebaseConfig";
 import { doc, getDoc, setDoc } from 'firebase/firestore';
@@ -19,6 +19,8 @@ const DEFAULT_GOAL_INTAKE = 2070;
 const DEFAULT_GOAL_LOSS = 0.8; // kg per week
 const DEFAULT_GOAL_STEPS = 10000; // steps per day
 const DEFAULT_GOAL_PROTEIN = 180; // actually use 2x bw
+const DEFAULT_REASON_WHY = "To become the best version of myself";
+
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAuth();
@@ -37,7 +39,8 @@ function App() {
     goalIntake: DEFAULT_GOAL_INTAKE,
     weightLossGoalPerWeek: DEFAULT_GOAL_LOSS,
     goalSteps: DEFAULT_GOAL_STEPS,
-    goalProtein: DEFAULT_GOAL_PROTEIN
+    goalProtein: DEFAULT_GOAL_PROTEIN,
+    reasonWhy: DEFAULT_REASON_WHY
   });
   const { currentUser } = useAuth();
 
@@ -72,7 +75,8 @@ function App() {
           goalIntake: userData.goalIntake || DEFAULT_GOAL_INTAKE,
           weightLossGoalPerWeek: userData.weightLossGoalPerWeek || DEFAULT_GOAL_LOSS,
           goalSteps: userData.goalSteps || DEFAULT_GOAL_STEPS,
-          goalProtein: userData.goalProtein || DEFAULT_GOAL_PROTEIN
+          goalProtein: userData.goalProtein || DEFAULT_GOAL_PROTEIN,
+          reasonWhy: userData.reasonWhy || DEFAULT_REASON_WHY
         });
       }
     } catch (error) {
@@ -91,6 +95,18 @@ function App() {
     }
   };
 
+  const handleReasonWhyUpdate = async (newReasonWhy) => {
+    if (!currentUser) return;
+
+    try {
+      const updatedSettings = { ...settings, reasonWhy: newReasonWhy };
+      await setDoc(doc(db, "users", currentUser.uid), updatedSettings);
+      setSettings(updatedSettings);
+    } catch (error) {
+      console.error("Error updating reason why:", error);
+    }
+  };
+
   useEffect(() => {
     if (currentUser) {
       fetchEntries();
@@ -102,6 +118,11 @@ function App() {
     <DarkModeProvider>
       <Router>
         <div className="App">
+          <div className="app-header">
+            <Link to="/" className="app-title-link">
+              <h1 className="app-title">Calorie Tracker</h1>
+            </Link>
+          </div>
           <NavBar />
           <Routes>
             <Route path="/login" element={<Login />} />
@@ -114,6 +135,8 @@ function App() {
                   goalIntake={settings.goalIntake}
                   goalProtein={settings.goalProtein}
                   goalSteps={settings.goalSteps}
+                  reasonWhy={settings.reasonWhy}
+                  onReasonWhyUpdate={handleReasonWhyUpdate}
                 />
               </ProtectedRoute>
             } />
@@ -122,6 +145,10 @@ function App() {
                 <ChartsPage 
                   entries={entries} 
                   weightLossGoalPerWeek={settings.weightLossGoalPerWeek} 
+                  goalIntake={settings.goalIntake}
+                  goalSteps={settings.goalSteps}
+                  goalProtein={settings.goalProtein}
+                  tdee={settings.tdee}
                 />
               </ProtectedRoute>
             } />

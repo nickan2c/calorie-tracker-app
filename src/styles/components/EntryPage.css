@@ -13,36 +13,157 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 2rem;
 }
 
-.page-header h1 {
-  margin: 0;
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.welcome-message {
   font-size: 2rem;
+  font-weight: 600;
+  margin: 0;
+  background: linear-gradient(45deg, var(--text-primary), var(--accent-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.streak-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--card-bg);
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+  width: fit-content;
+}
+
+.streak-emoji {
+  font-size: 1.25rem;
+  filter: drop-shadow(0 0 8px rgba(255, 165, 0, 0.6));
+}
+
+.streak-text {
   color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.reason-why-container {
+  margin-top: 0.75rem;
+  background: var(--card-bg);
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--card-shadow);
+}
+
+.reason-why-label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.reason-why-display {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.reason-why-text {
+  color: var(--text-primary);
+  font-style: italic;
+  font-size: 1rem;
+  flex: 1;
+}
+
+.reason-why-edit-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.reason-why-edit-btn:hover {
+  background: var(--bg-secondary);
+}
+
+.reason-why-edit {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reason-why-input {
+  flex: 1;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.5rem;
+  color: var(--text-primary);
+  font-size: 1rem;
+  outline: none;
+}
+
+.reason-why-input:focus {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.2);
+}
+
+.reason-why-save,
+.reason-why-cancel {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+}
+
+.reason-why-save {
+  color: var(--accent-color);
+}
+
+.reason-why-save:hover {
+  background: rgba(74, 222, 128, 0.1);
+}
+
+.reason-why-cancel {
+  color: var(--error-text);
+}
+
+.reason-why-cancel:hover {
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .add-entry-button {
-  background: var(--accent-color);
+  background-color: var(--accent-color);
   color: var(--bg-primary);
   border: none;
-  padding: 12px 24px;
-  border-radius: 12px;
-  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 2px 4px rgba(74, 222, 128, 0.2);
+  transition: all 0.2s ease;
+  font-size: 1rem;
 }
 
 .add-entry-button:hover {
+  background-color: var(--accent-hover);
   transform: translateY(-1px);
-  background: var(--accent-hover);
-  box-shadow: 0 4px 6px rgba(74, 222, 128, 0.3);
-}
-
-.add-entry-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(74, 222, 128, 0.2);
+  box-shadow: var(--card-shadow);
 }
 
 .stats-summary {
@@ -111,37 +232,38 @@
 }
 
 /* Mobile Optimization */
-@media (max-width: 640px) {
-  .container {
-    padding: 16px;
-  }
-
+@media (max-width: 768px) {
   .page-header {
     flex-direction: column;
-    gap: 16px;
+    gap: 1rem;
     text-align: center;
   }
 
-  .add-entry-button {
+  .header-content {
+    align-items: center;
     width: 100%;
   }
 
-  .stats-summary {
-    padding: 16px;
-    text-align: center;
+  .welcome-message {
+    font-size: 1.75rem;
   }
 
-  .view-toggle {
-    text-align: center;
+  .streak-display {
+    align-self: center;
   }
 
-  .view-toggle button {
+  .reason-why-container {
     width: 100%;
+    text-align: left;
   }
 
-  .charts-link {
-    display: block;
-    text-align: center;
+  .reason-why-edit {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .reason-why-input {
+    min-width: 200px;
   }
 }
 

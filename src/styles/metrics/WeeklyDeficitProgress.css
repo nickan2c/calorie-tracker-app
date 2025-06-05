@@ -77,6 +77,39 @@
   color: var(--text-secondary);
 }
 
+.weekly-summary {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  border: 1px solid var(--border-color);
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.5rem 0;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+
+.summary-item:first-child {
+  margin-top: 0;
+}
+
+.summary-item:last-child {
+  margin-bottom: 0;
+}
+
+.summary-item span:first-child {
+  color: var(--text-secondary);
+}
+
+.summary-item span:last-child {
+  font-weight: 600;
+}
+
 .progress-bar-container {
   height: 20px;
   background: var(--bg-secondary);

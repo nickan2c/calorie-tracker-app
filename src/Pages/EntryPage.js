@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import EntriesTable from '../components/forms/EntriesTable';
 import ListView from '../components/calendar/ListView';
 import '../App.css';
 import '../styles/components/EntryPage.css';
 import { db } from '../firebaseConfig/firebaseConfig';
-import { doc, setDoc, deleteDoc, collection } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc, collection, getDoc } from 'firebase/firestore';
 import CalendarGrid from '../components/calendar/CalendarGrid';
 import EntryModal from '../components/forms/EntryModal';
 import SettingsSummary from '../components/common/SettingsSummary';
@@ -19,12 +19,36 @@ const KCAL_PER_KG = 7700;
 const formatDate = (date) => date.toISOString().split("T")[0];
 const today = formatDate(new Date());
 
+// Calculate current streak of consecutive days with entries
+const calculateStreak = (entries) => {
+  if (!entries || entries.length === 0) return 0;
+  
+  const sortedEntries = [...entries].sort((a, b) => new Date(b.date) - new Date(a.date));
+  const entryDates = new Set(sortedEntries.map(entry => entry.date));
+  
+  let streak = 0;
+  let currentDate = new Date();
+  
+  // Check consecutive days backwards from today
+  while (true) {
+    const dateString = formatDate(currentDate);
+    if (entryDates.has(dateString)) {
+      streak++;
+      currentDate.setDate(currentDate.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  
+  return streak;
+};
+
 const EMPTY_FORM = {
   date: today,
   weight: '',
-  intake: 0,
-  protein: 0,
-  steps: 0,
+  intake: '',
+  protein: '',
+  steps: '',
   cardio: '',
   exercise1: '',
   exercise2: '',
@@ -32,8 +56,9 @@ const EMPTY_FORM = {
   deficit: 0,
 };
 
-function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalSteps }) {
+function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalSteps, reasonWhy, onReasonWhyUpdate }) {
   const { currentUser } = useAuth();
+  const [username, setUsername] = useState('');
   const [form, setForm] = useState(EMPTY_FORM);
   const [viewMode, setViewMode] = useState('grid');
   const [editingIndex, setEditingIndex] = useState(-1);
@@ -44,6 +69,29 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
   const [formErrors, setFormErrors] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState('calories');
+  const [isEditingReason, setIsEditingReason] = useState(false);
+  const [tempReasonWhy, setTempReasonWhy] = useState(reasonWhy);
+
+  useEffect(() => {
+    const fetchUsername = async () => {
+      if (currentUser) {
+        try {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          const docSnap = await getDoc(userDocRef);
+          if (docSnap.exists() && docSnap.data().username) {
+            setUsername(docSnap.data().username);
+          }
+        } catch (error) {
+          console.error("Error fetching username:", error);
+        }
+      }
+    };
+    fetchUsername();
+  }, [currentUser]);
+
+  useEffect(() => {
+    setTempReasonWhy(reasonWhy);
+  }, [reasonWhy]);
 
   const getMostRecentEntry = () => {
     const sortedEntries = [...entries].sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -54,7 +102,9 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const newValue = name === "steps" || name === "intake" ? parseInt(value) || 0 : value;
+    // Allow empty values for numeric fields
+    const newValue = value === '' ? '' : 
+      (name === "steps" || name === "intake") ? parseInt(value) || value : value;
     
     let updated = { ...form, [name]: newValue };
 
@@ -73,7 +123,13 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
         setEditingIndex(-1);
       }
     } else {
-      updated.deficit = calculateDeficit({ tdee, ...updated });
+      // Only calculate deficit if numeric fields have values
+      const numericFields = {
+        ...updated,
+        intake: updated.intake === '' ? 0 : Number(updated.intake),
+        steps: updated.steps === '' ? 0 : Number(updated.steps)
+      };
+      updated.deficit = calculateDeficit({ tdee, ...numericFields });
     }
 
     setForm(updated);
@@ -219,10 +275,75 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
 
   const fatLossPerWeek = ((goalIntake - tdee) * 7 / KCAL_PER_KG).toFixed(2);
 
+  const currentStreak = calculateStreak(entries);
+
   return (
     <div className="container">
       <div className="page-header">
-        <h1>Calorie Tracker</h1>
+        <div className="header-content">
+          <h1 className="welcome-message">Welcome back, {username || 'King'}</h1>
+          <div className="streak-display">
+            <span className="streak-emoji">🔥</span>
+            <span className="streak-text">
+              {currentStreak} day{currentStreak !== 1 ? 's' : ''} streak
+            </span>
+          </div>
+          <div className="reason-why-container">
+            <div className="reason-why-label">Your Why:</div>
+            {isEditingReason ? (
+              <div className="reason-why-edit">
+                <input
+                  type="text"
+                  value={tempReasonWhy}
+                  onChange={(e) => setTempReasonWhy(e.target.value)}
+                  className="reason-why-input"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      onReasonWhyUpdate(tempReasonWhy);
+                      setIsEditingReason(false);
+                    }
+                    if (e.key === 'Escape') {
+                      setTempReasonWhy(reasonWhy);
+                      setIsEditingReason(false);
+                    }
+                  }}
+                  autoFocus
+                />
+                <button 
+                  onClick={() => {
+                    onReasonWhyUpdate(tempReasonWhy);
+                    setIsEditingReason(false);
+                  }}
+                  className="reason-why-save"
+                >
+                  ✓
+                </button>
+                <button 
+                  onClick={() => {
+                    setTempReasonWhy(reasonWhy);
+                    setIsEditingReason(false);
+                  }}
+                  className="reason-why-cancel"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <div className="reason-why-display">
+                <span className="reason-why-text">"{reasonWhy}"</span>
+                <button 
+                  onClick={() => {
+                    setTempReasonWhy(reasonWhy);
+                    setIsEditingReason(true);
+                  }}
+                  className="reason-why-edit-btn"
+                >
+                  ✏️
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
         <button className="add-entry-button" onClick={handleAdd}>
           + Add Entry
         </button>

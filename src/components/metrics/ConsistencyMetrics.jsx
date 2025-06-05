@@ -28,13 +28,17 @@ const ConsistencyMetrics = ({
   };
   
   const calculateConsistency = (startDate, endDate = dayjs()) => {
-    const totalDays = endDate.diff(startDate, 'day') + 1;
     const metric = metricDefinitions.find(m => m.id === selectedMetric);
     
-    const successfulDays = entries.filter(entry => {
+    const entriesInRange = entries.filter(entry => {
       const entryDate = dayjs(entry.date);
-      if (entryDate.isBefore(startDate) || entryDate.isAfter(endDate)) return false;
-      
+      return !entryDate.isBefore(startDate) && !entryDate.isAfter(endDate);
+    });
+
+    const totalDays = entriesInRange.length;
+    if (totalDays === 0) return { percentage: 0, successful: 0, total: 0 };
+    
+    const successfulDays = entriesInRange.filter(entry => {
       const metricValue = entry[metric.key];
       const metricGoal = metric.goal ? goals[metric.goal] || metric.goal : metric.goal;
       return compareValue(metricValue, metricGoal, metric.compare);

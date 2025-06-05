@@ -1,34 +1,37 @@
 import { useState, useEffect } from "react";
 import '../styles/pages/SettingsPage.css';
-import { Link } from "react-router-dom";
-import { db } from '../firebaseConfig/firebaseConfig';
+import { Link, useNavigate } from "react-router-dom";
+import { db, auth } from '../firebaseConfig/firebaseConfig';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 import { useAuth } from '../context/AuthContext';
 import { useDarkMode } from '../context/DarkModeContext';
 
-function SettingsPage({ 
-  tdee, 
-  setTdee, 
-  goalIntake, 
-  setGoalIntake, 
-  goalProtein, 
-  setGoalProtein,
-  goalSteps, 
-  setgoalSteps,
-  weightLossGoalPerWeek, 
-  setWeightLossGoalPerWeek 
-}) {
+function SettingsPage({ settings, onSave }) {
+  const navigate = useNavigate();
   const { currentUser } = useAuth();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
-  const [newTdee, setNewTdee] = useState(tdee || "");
-  const [newGoalIntake, setNewGoalIntake] = useState(goalIntake || "");
-  const [newGoalProtein, setNewGoalProtein] = useState(goalProtein || "");
-  const [newGoalSteps, setNewGoalSteps] = useState(goalSteps || "");
-  const [newWeightLossGoalPerWeek, setNewWeightLossGoalPerWeek] = useState(weightLossGoalPerWeek || "");
+  const [newTdee, setNewTdee] = useState(settings?.tdee || "");
+  const [newGoalIntake, setNewGoalIntake] = useState(settings?.goalIntake || "");
+  const [newGoalProtein, setNewGoalProtein] = useState(settings?.goalProtein || "");
+  const [newGoalSteps, setNewGoalSteps] = useState(settings?.goalSteps || "");
+  const [newWeightLossGoalPerWeek, setNewWeightLossGoalPerWeek] = useState(settings?.weightLossGoalPerWeek || "");
+  const [newReasonWhy, setNewReasonWhy] = useState(settings?.reasonWhy || "");
   const [username, setUsername] = useState("");
   const [newUsername, setNewUsername] = useState("");
   const [saved, setSaved] = useState(false);
   const [message, setMessage] = useState('');
+
+  useEffect(() => {
+    if (settings) {
+      setNewTdee(settings.tdee || "");
+      setNewGoalIntake(settings.goalIntake || "");
+      setNewGoalProtein(settings.goalProtein || "");
+      setNewGoalSteps(settings.goalSteps || "");
+      setNewWeightLossGoalPerWeek(settings.weightLossGoalPerWeek || "");
+      setNewReasonWhy(settings.reasonWhy || "");
+    }
+  }, [settings]);
 
   useEffect(() => {
     const fetchUsername = async () => {
@@ -52,27 +55,27 @@ function SettingsPage({
   const handleGoalStepsChange = (e) => setNewGoalSteps(e.target.value);
   const handleWeightLossGoalChange = (e) => setNewWeightLossGoalPerWeek(e.target.value);
   const handleUsernameChange = (e) => setNewUsername(e.target.value);
+  const handleReasonWhyChange = (e) => setNewReasonWhy(e.target.value);
   
   const handleSave = async () => {
     try {
+      // Save username separately
       const userDocRef = doc(db, "users", currentUser.uid);
       await setDoc(userDocRef, {
-        username: newUsername,
-        settings: {
-          tdee: Number(newTdee),
-          goalIntake: Number(newGoalIntake),
-          goalSteps: Number(newGoalSteps),
-          goalProtein: Number(newGoalProtein),
-          weightLossGoalPerWeek: Number(newWeightLossGoalPerWeek)
-        }
+        username: newUsername
       }, { merge: true });
       
-      // Update parent state
-      setTdee(Number(newTdee));
-      setGoalIntake(Number(newGoalIntake));
-      setGoalProtein(Number(newGoalProtein));
-      setgoalSteps(Number(newGoalSteps));
-      setWeightLossGoalPerWeek(Number(newWeightLossGoalPerWeek));
+      // Use the onSave callback for settings
+      const updatedSettings = {
+        tdee: Number(newTdee),
+        goalIntake: Number(newGoalIntake),
+        goalProtein: Number(newGoalProtein),
+        goalSteps: Number(newGoalSteps),
+        weightLossGoalPerWeek: Number(newWeightLossGoalPerWeek),
+        reasonWhy: newReasonWhy
+      };
+      
+      await onSave(updatedSettings);
       setUsername(newUsername);
       
       setMessage('Settings saved successfully!');
@@ -80,6 +83,17 @@ function SettingsPage({
     } catch (error) {
       console.error("Error saving settings:", error);
       setMessage('Error saving settings. Please try again.');
+      setTimeout(() => setMessage(''), 3000);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/login');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      setMessage('Error signing out. Please try again.');
       setTimeout(() => setMessage(''), 3000);
     }
   };
@@ -95,17 +109,14 @@ function SettingsPage({
       <div className="settings-content">
         {/* Header */}
         <div className="settings-header">
-          <Link to="/" className="back-button">
-            <span className="back-arrow">←</span>Back to Home
-          </Link>
+
           <h1 className="settings-title">Settings</h1>
           <p className="settings-subtitle">Customize your health and fitness goals</p>
         </div>
-
+        
         {/* Settings Card */}
         <div className="settings-card">
           <div className="settings-form">
-            
             {/* Dark Mode Setting */}
             <div className="setting-group">
               <div className="setting-header">
@@ -113,12 +124,8 @@ function SettingsPage({
                   <span>{isDarkMode ? '🌙' : '☀️'}</span>
                 </div>
                 <div className="setting-info">
-                  <label className="setting-label">
-                    Dark Mode
-                  </label>
-                  <p className="setting-description">
-                    Toggle between light and dark theme
-                  </p>
+                  <label className="setting-label">Dark Mode</label>
+                  <p className="setting-description">Toggle between light and dark theme</p>
                 </div>
               </div>
               <div className="input-container">
@@ -140,12 +147,8 @@ function SettingsPage({
                   <span>👤</span>
                 </div>
                 <div className="setting-info">
-                  <label className="setting-label">
-                    Username
-                  </label>
-                  <p className="setting-description">
-                    Your display name in the app
-                  </p>
+                  <label className="setting-label">Username</label>
+                  <p className="setting-description">Your display name in the app</p>
                 </div>
               </div>
               <div className="input-container">
@@ -166,12 +169,8 @@ function SettingsPage({
                   <span>⚡</span>
                 </div>
                 <div className="setting-info">
-                  <label className="setting-label">
-                    Total Daily Energy Expenditure (TDEE)
-                  </label>
-                  <p className="setting-description">
-                    Your estimated daily calorie burn including all activities
-                  </p>
+                  <label className="setting-label">Total Daily Energy Expenditure (TDEE)</label>
+                  <p className="setting-description">Your estimated daily calorie burn including all activities</p>
                 </div>
               </div>
               <div className="input-container">
@@ -179,26 +178,22 @@ function SettingsPage({
                   type="number"
                   value={newTdee}
                   onChange={handleTdeeChange}
-                  placeholder="e.g., 2500"
+                  placeholder={"e.g. " + (settings?.tdee || "")}
                   className="setting-input"
                 />
                 <span className="input-unit">calories/day</span>
               </div>
             </div>
 
-            {/* Goal Calories Burnt Setting */}
+            {/* Goal Intake Setting */}
             <div className="setting-group">
               <div className="setting-header">
                 <div className="setting-icon target-icon">
                   <span>🎯</span>
                 </div>
                 <div className="setting-info">
-                  <label className="setting-label">
-                    Goal Calories Burnt
-                  </label>
-                  <p className="setting-description">
-                    Target calories to burn through exercise and activity
-                  </p>
+                  <label className="setting-label">Goal Calorie Intake</label>
+                  <p className="setting-description">Your target daily calorie intake</p>
                 </div>
               </div>
               <div className="input-container">
@@ -206,7 +201,7 @@ function SettingsPage({
                   type="number"
                   value={newGoalIntake}
                   onChange={handleGoalIntakeChange}
-                  placeholder="e.g., 500"
+                  placeholder={"e.g. " + (settings?.goalIntake || "")}
                   className="setting-input"
                 />
                 <span className="input-unit">calories/day</span>
@@ -220,12 +215,8 @@ function SettingsPage({
                   <span>🥩</span>
                 </div>
                 <div className="setting-info">
-                  <label className="setting-label">
-                    Daily Protein Goal
-                  </label>
-                  <p className="setting-description">
-                    Target protein intake to support muscle growth and recovery
-                  </p>
+                  <label className="setting-label">Goal Protein Intake</label>
+                  <p className="setting-description">Your target daily protein intake</p>
                 </div>
               </div>
               <div className="input-container">
@@ -244,15 +235,11 @@ function SettingsPage({
             <div className="setting-group">
               <div className="setting-header">
                 <div className="setting-icon steps-icon">
-                  <span>👟</span>
+                  <span>👣</span>
                 </div>
                 <div className="setting-info">
-                  <label className="setting-label">
-                    Daily Steps Goal
-                  </label>
-                  <p className="setting-description">
-                    Target number of steps to maintain an active lifestyle
-                  </p>
+                  <label className="setting-label">Goal Steps</label>
+                  <p className="setting-description">Your target daily step count</p>
                 </div>
               </div>
               <div className="input-container">
@@ -271,21 +258,16 @@ function SettingsPage({
             <div className="setting-group">
               <div className="setting-header">
                 <div className="setting-icon weight-icon">
-                  <span>📉</span>
+                  <span>⚖️</span>
                 </div>
                 <div className="setting-info">
-                  <label className="setting-label">
-                    Weight Loss Goal
-                  </label>
-                  <p className="setting-description">
-                    Target weight loss per week (0.5-1 kg recommended)
-                  </p>
+                  <label className="setting-label">Weight Loss Goal</label>
+                  <p className="setting-description">Your target weight loss per week</p>
                 </div>
               </div>
               <div className="input-container">
                 <input
                   type="number"
-                  step="0.1"
                   value={newWeightLossGoalPerWeek}
                   onChange={handleWeightLossGoalChange}
                   placeholder="e.g., 0.5"
@@ -294,48 +276,65 @@ function SettingsPage({
                 <span className="input-unit">kg/week</span>
               </div>
             </div>
-          </div>
 
-          {/* Save Button */}
-          <div className="save-section">
-            <button
-              onClick={saveSettings}
-              className={`save-button ${saved ? 'saved' : ''}`}
-            >
-              {saved ? (
-                <>
-                  <span className="save-icon">✓</span>
-                  <span>Settings Saved!</span>
-                </>
-              ) : (
-                <>
-                  <span className="save-icon">💾</span>
-                  <span>Save Settings</span>
-                </>
-              )}
-            </button>
+            {/* Reason Why Setting */}
+            <div className="setting-group">
+              <div className="setting-header">
+                <div className="setting-icon reason-icon">
+                  <span>🤔</span>
+                </div>
+                <div className="setting-info">
+                  <label className="setting-label">Reason Why</label>
+                  <p className="setting-description">Your reason for setting these goals</p>
+                </div>
+              </div>
+              <div className="input-container">
+                <input
+                  type="text"
+                  value={newReasonWhy}
+                  onChange={handleReasonWhyChange}
+                  placeholder="Enter your reason"
+                  className="setting-input"
+                />
+              </div>
+            </div>
+
+            {/* Logout Button */}
+            <div className="setting-group">
+              <div className="setting-header">
+                <div className="setting-icon logout-icon">
+                  <span>🚪</span>
+                </div>
+                <div className="setting-info">
+                  <label className="setting-label">Account</label>
+                  <p className="setting-description">Sign out of your account</p>
+                </div>
+              </div>
+              <div className="input-container">
+                <button onClick={handleLogout} className="logout-button">
+                  Logout
+                </button>
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <div className="settings-actions">
+              <button 
+                className={`save-button ${saved ? 'saved' : ''}`} 
+                onClick={saveSettings}
+              >
+                {saved ? 'Saved!' : 'Save Changes'}
+              </button>
+            </div>
+
+            <Link to="/" className="back-button">
+            <span className="back-arrow">←</span>Back to Home
+        </Link>
           </div>
         </div>
 
-        {/* Tips Section */}
-        <div className="tips-section">
-          <h3 className="tips-title">💡 Quick Tips</h3>
-          <ul className="tips-list">
-            <li>• Calculate your TDEE using online calculators or fitness apps</li>
-            <li>• A safe weight loss rate is 0.5-1 kg per week</li>
-            <li>• Aim for 1.6-2.2g of protein per kg of body weight</li>
-            <li>• 10,000 steps per day is a great baseline for general health</li>
-            <li>• 1 kg of fat equals approximately 7,700 calories</li>
-            <li>• Adjust goals gradually as your fitness level improves</li>
-          </ul>
-        </div>
 
-        {/* Message Notification */}
-        {message && (
-          <div className={`message ${message.includes('❌') ? 'error' : 'success'}`}>
-            {message}
-          </div>
-        )}
+        {message && <div className="settings-message">{message}</div>}
       </div>
     </div>
   );

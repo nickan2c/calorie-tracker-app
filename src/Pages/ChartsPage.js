@@ -114,7 +114,7 @@ function fillMissingDays(entries, startDate, endDate) {
   return result;
 }
 
-export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
+export default function ChartsPage({ entries, weightLossGoalPerWeek, goalIntake, goalSteps, goalProtein, tdee }) {
   const [viewType, setViewType] = useState('daily');
   const [timeRange, setTimeRange] = useState(7);
   const [chartData, setChartData] = useState([]);
@@ -124,8 +124,6 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
   const sortedEntries = [...entries].sort(
     (a, b) => new Date(a.date) - new Date(b.date)
   );
-
-  const weight = sortedEntries.length > 0 ? sortedEntries[0].weight : 85;
 
   const timeRangeOptions = [
     { value: 7, label: 'Past 7 Days' },
@@ -141,7 +139,8 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
     { value: 'weight', label: 'Weight' },
     { value: 'deficit', label: 'Calorie Deficit' },
     { value: 'steps', label: 'Daily Steps' },
-    { value: 'intake', label: 'Calorie Intake' }
+    { value: 'intake', label: 'Calorie Intake' },
+    { value: 'protein', label: 'Protein Intake' }
   ];
 
   // Calculate chart data based on selected time range
@@ -185,19 +184,25 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
       deficit: {
         label: 'Calorie Deficit',
         unit: 'kcal',
-        goalValue: 500,
+        goalValue: tdee - goalIntake,
         chartType: 'bar'
       },
       steps: {
         label: 'Daily Steps',
         unit: 'steps',
-        goalValue: 10000,
+        goalValue: goalSteps,
         chartType: 'bar'
       },
       intake: {
         label: 'Calorie Intake',
         unit: 'kcal',
-        goalValue: 2000,
+        goalValue: goalIntake,
+        chartType: 'bar'
+      },
+      protein: {
+        label: 'Protein Intake',
+        unit: 'g',
+        goalValue: goalProtein,
         chartType: 'bar'
       }
     };
@@ -206,10 +211,6 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
     if (!config) return null;
 
     return (
-      <div className="chart-container" key={metricKey}>
-        <h2>
-          {config.label}
-        </h2>
         <MetricChart
           data={chartData}
           dataKey={metricKey}
@@ -225,7 +226,6 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
               : undefined
           }
         />
-      </div>
     );
   };
 
@@ -236,6 +236,7 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
       <WeeklyDeficitProgress 
         sortedEntries={sortedEntries} 
         weightLossGoalPerWeek={weightLossGoalPerWeek}
+        goalIntake={goalIntake}
       />
       
       <div className="chart-controls">
@@ -289,7 +290,7 @@ export default function ChartsPage({ entries, weightLossGoalPerWeek }) {
 
       <div className="charts-grid">
         {selectedMetric === 'all' ? (
-          ['weight', 'deficit', 'steps', 'intake'].map(metricKey => renderChartSection(metricKey))
+          ['weight', 'deficit', 'steps', 'intake', 'protein'].map(metricKey => renderChartSection(metricKey))
         ) : (
           renderChartSection(selectedMetric)
         )}

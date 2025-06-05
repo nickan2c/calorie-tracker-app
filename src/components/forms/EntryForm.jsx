@@ -24,8 +24,8 @@ const EntryForm = ({
 
       <InputField label="📅 Date" name="date" type="date" value={form.date} onChange={handleChange} />
       <InputField label="⚖️ Weight (kg)" name="weight" type="number" value={form.weight} onChange={handleChange} placeholder={mostRecentEntry.weight || 'e.g. 84'} />
-      <InputField label="🍽️ Calorie Intake" name="intake" type="number" value={form.intake} onChange={handleChange} placeholder={mostRecentEntry.intake || 'e.g. 2000'} required hasError={formErrors.intake} />
-      <InputField label="🥩 Protein (g)" name="protein" type="number" value={form.protein} onChange={handleChange} placeholder={mostRecentEntry.protein || 'e.g. 150'} required hasError={formErrors.protein} />
+      <InputField label="🍽️ Calorie Intake" name="intake" type="number" value={form.intake} onChange={handleChange} placeholder={mostRecentEntry.intake || 'e.g. 2000'} />
+      <InputField label="🥩 Protein (g)" name="protein" type="number" value={form.protein} onChange={handleChange} placeholder={mostRecentEntry.protein || 'e.g. 150'}   />
       <InputField label="👣 Steps" name="steps" type="number" value={form.steps} onChange={handleChange} placeholder={mostRecentEntry.steps || 'e.g. 10000'} />
       <InputField label="❤️‍🔥 Cardio (cal)" name="cardio" type="number" value={form.cardio} onChange={handleChange} placeholder={mostRecentEntry.cardio || 'e.g. 300'} />
       <InputField label="🏋️ Exercise 1" name="exercise1" type="textarea" value={form.exercise1} onChange={handleChange} placeholder={mostRecentEntry.exercise1 || 'e.g. Running'} />

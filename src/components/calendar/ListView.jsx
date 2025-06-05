@@ -70,7 +70,7 @@ const ListView = ({ entries, onEdit, goals }) => {
             {(entry.cardio || entry.exercise1 || entry.exercise2) && (
               <div className="activities">
                 {entry.cardio > 0 && (
-                  <span className="activity">❤️ {entry.cardio}min cardio</span>
+                  <span className="activity">❤️ {entry.cardio}kcal burnt</span>
                 )}
                 {entry.exercise1 && (
                   <span className="activity">🏋️ {entry.exercise1}</span>

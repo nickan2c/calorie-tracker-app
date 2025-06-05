@@ -1,8 +1,8 @@
 .navbar {
   background-color: var(--nav-bg);
-  padding: 1rem 2rem;
+  padding: 0;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   box-shadow: var(--nav-shadow);
   position: sticky;
@@ -10,6 +10,19 @@
   z-index: 1000;
   border-bottom: 1px solid var(--border-color);
   transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem 2rem;
+  box-sizing: border-box;
 }
 
 .nav-brand a {
@@ -90,12 +103,16 @@
 }
 
 @media (max-width: 768px) {
-  .navbar {
+  .navbar-container {
     padding: 1rem;
   }
 
   .nav-links {
-    gap: 1rem;
+    gap: 0.5rem;
+  }
+
+  .nav-links a {
+    padding: 0.25rem 0.5rem;
   }
 
   .user-menu {
