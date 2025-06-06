@@ -1,0 +1,135 @@
+/* Success Animation Styles */
+.success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.success-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+.success-circle {
+  width: 120px;
+  height: 120px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+  margin-bottom: 1.5rem;
+}
+
+.checkmark {
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.4s ease-out;
+}
+
+.checkmark.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.checkmark-path {
+  stroke-dasharray: 50;
+  stroke-dashoffset: 50;
+  animation: drawCheckmark 0.8s ease-out forwards;
+}
+
+.success-message {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.5s ease-out;
+}
+
+.success-message.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.success-message h3 {
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.success-message p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.3) translateY(-50px);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05) translateY(-10px);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(0.95) translateY(5px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes drawCheckmark {
+  0% {
+    stroke-dashoffset: 50;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .success-circle {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .checkmark {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .success-message h3 {
+    font-size: 1.25rem;
+  }
+  
+  .success-message p {
+    font-size: 0.9rem;
+  }
+} 

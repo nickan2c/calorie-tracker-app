@@ -9,6 +9,7 @@ import { doc, setDoc, deleteDoc, collection, getDoc } from 'firebase/firestore';
 import CalendarGrid from '../components/calendar/CalendarGrid';
 import EntryModal from '../components/forms/EntryModal';
 import SettingsSummary from '../components/common/SettingsSummary';
+import SuccessAnimation from '../components/common/SuccessAnimation';
 import { calculateDeficit } from '../helper';
 import { useAuth } from '../context/AuthContext';
 
@@ -71,6 +72,7 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
   const [selectedMetric, setSelectedMetric] = useState('calories');
   const [isEditingReason, setIsEditingReason] = useState(false);
   const [tempReasonWhy, setTempReasonWhy] = useState(reasonWhy);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
   useEffect(() => {
     const fetchUsername = async () => {
@@ -185,6 +187,9 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
       setConfirmUpdate(false);
       setFormErrors({});
       setIsModalOpen(false);
+      
+      // Show success animation
+      setShowSuccessAnimation(true);
       
       // Fetch updated entries
       await fetchEntries();
@@ -401,6 +406,11 @@ function EntryPage({ entries, fetchEntries, tdee, goalIntake, goalProtein, goalS
       />
 
       <Link to="/charts" className="charts-link">📈 View Charts</Link>
+
+      <SuccessAnimation
+        isVisible={showSuccessAnimation}
+        onComplete={() => setShowSuccessAnimation(false)}
+      />
     </div>
   );
 }
